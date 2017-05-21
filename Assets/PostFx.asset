@@ -16,7 +16,7 @@ MonoBehaviour:
     m_Settings:
       mode: 0
       depth:
-        scale: 0.08
+        scale: 0.17
       motionVectors:
         sourceOpacity: 1
         motionImageOpacity: 0
@@ -43,8 +43,8 @@ MonoBehaviour:
     m_Enabled: 1
     m_Settings:
       intensity: 1.3
-      radius: 0.18
-      sampleCount: 16
+      radius: 0.14
+      sampleCount: 10
       downsampling: 0
       forceForwardCompatibility: 0
       ambientOnly: 1
