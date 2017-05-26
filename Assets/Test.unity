@@ -444,7 +444,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _tube: {fileID: 11400000, guid: 132b2abd13d28d2468e91cd6a2634143, type: 2}
   _material: {fileID: 2100000, guid: b3e3f432bd29ac1499686dbad7ae39ef, type: 2}
-  _instanceCount: 3000
+  _instanceCount: 8000
+  _gradient: {fileID: 11400000, guid: 202a0875a5bc2554a932e60d8ed7e7ec, type: 2}
   _compute: {fileID: 7200000, guid: 7a1ae88efe737d44f94f67a6465099fb, type: 3}
 --- !u!4 &1922321557
 Transform:

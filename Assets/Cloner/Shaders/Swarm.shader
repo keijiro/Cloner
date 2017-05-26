@@ -5,7 +5,6 @@
         _MainTex("Albedo", 2D) = "white" {}
         _NormalMap("Normal Map", 2D) = "bump" {}
         _NormalScale("Normal Scale", Range(0, 1)) = 1
-		_Color("Color", Color) = (1, 1, 1, 1)
 		_Smoothness("Smoothness", Range(0, 1)) = 0
 		_Metallic("Metallic", Range(0, 1)) = 0
 	}
@@ -26,9 +25,13 @@
         sampler2D _MainTex;
         sampler2D _NormalMap;
         half _NormalScale;
-		half4 _Color;
 		half _Smoothness;
 		half _Metallic;
+
+        half3 _GradientA;
+        half3 _GradientB;
+        half3 _GradientC;
+        half3 _GradientD;
 
         #ifdef UNITY_PROCEDURAL_INSTANCING_ENABLED
 
@@ -48,6 +51,7 @@
 
             float phi = v.vertex.x;
             int seg = (int)v.vertex.z;
+            float cp = v.vertex.z / _ArraySize + (float)unity_InstanceID / _InstanceCount; 
 
             seg = clamp(seg, 2, _ArraySize - 1) - 2;
             seg = unity_InstanceID + seg * _InstanceCount;
@@ -67,6 +71,7 @@
 
             v.vertex.xyz = p1 + (vn * xy.x + vb * xy.y) * radius;
             v.normal.xyz = vn * xy.x + vb * xy.y;
+            v.texcoord = cp;
 
         #endif
         }
@@ -81,8 +86,8 @@
 		void surf (Input IN, inout SurfaceOutputStandard o)
         {
             float2 uv = IN.uv_MainTex;
-            fixed4 c = tex2D(_MainTex, uv) * _Color;
-			o.Albedo = c.rgb;
+            half3 gradient = saturate(_GradientA + _GradientB * cos(_GradientC * uv.y + _GradientD));
+			o.Albedo = tex2D(_MainTex, uv).rgb * GammaToLinearSpace(gradient);
 			o.Metallic = _Metallic;
 			o.Smoothness = _Smoothness;
             o.Normal = UnpackScaleNormal(tex2D(_NormalMap, uv), _NormalScale);

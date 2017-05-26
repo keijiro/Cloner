@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using Klak.Chromatics;
 
 namespace Cloner
 {
@@ -9,6 +10,7 @@ namespace Cloner
         [SerializeField] Tube _tube;
         [SerializeField] Material _material;
         [SerializeField] int _instanceCount = 1000;
+        [SerializeField] CosineGradient _gradient;
 
         #endregion
 
@@ -91,6 +93,10 @@ namespace Cloner
             _material.SetInt("_ArraySize", _tube.segments + 1);
             _material.SetBuffer("_PositionBuffer", _positionBuffer);
             _material.SetInt("_InstanceCount", InstanceCount);
+            _material.SetVector("_GradientA", _gradient.coeffsA);
+            _material.SetVector("_GradientB", _gradient.coeffsB);
+            _material.SetVector("_GradientC", _gradient.coeffsC2);
+            _material.SetVector("_GradientD", _gradient.coeffsD2);
             Graphics.DrawMeshInstancedIndirect(
                 _tube.mesh, 0, _material, _bounds,
                 _drawArgsBuffer, 0, _props
