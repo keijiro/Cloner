@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.36774206, g: 0.39879423, b: 0.4721811, a: 1}
+  m_IndirectSpecularColor: {r: 0.43854734, g: 0.47558147, b: 0.56310064, a: 1}
 --- !u!157 &3
 LightmapSettings:
   m_ObjectHideFlags: 0
@@ -167,7 +167,7 @@ Camera:
     height: 1
   near clip plane: 0.3
   far clip plane: 100
-  field of view: 15
+  field of view: 18
   orthographic: 0
   orthographic size: 5
   m_Depth: -1
@@ -415,6 +415,51 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1452801455
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 1452801457}
+  - component: {fileID: 1452801456}
+  m_Layer: 0
+  m_Name: Swarm (1)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!114 &1452801456
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1452801455}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eb088c1015080634296b5d478a3f5c0e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _tube: {fileID: 11400000, guid: 132b2abd13d28d2468e91cd6a2634143, type: 2}
+  _material: {fileID: 2100000, guid: b3e3f432bd29ac1499686dbad7ae39ef, type: 2}
+  _instanceCount: 8000
+  _gradient: {fileID: 11400000, guid: 202a0875a5bc2554a932e60d8ed7e7ec, type: 2}
+  _compute: {fileID: 7200000, guid: 7a1ae88efe737d44f94f67a6465099fb, type: 3}
+--- !u!4 &1452801457
+Transform:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1452801455}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 5
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1922321555
 GameObject:
   m_ObjectHideFlags: 0
@@ -439,14 +484,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 1922321555}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: eb088c1015080634296b5d478a3f5c0e, type: 3}
+  m_Script: {fileID: 11500000, guid: f9cbbd115dec74146a9f7338260c94e5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   _tube: {fileID: 11400000, guid: 132b2abd13d28d2468e91cd6a2634143, type: 2}
   _material: {fileID: 2100000, guid: b3e3f432bd29ac1499686dbad7ae39ef, type: 2}
-  _instanceCount: 8000
+  _instanceCount: 4000
   _gradient: {fileID: 11400000, guid: 202a0875a5bc2554a932e60d8ed7e7ec, type: 2}
-  _compute: {fileID: 7200000, guid: 7a1ae88efe737d44f94f67a6465099fb, type: 3}
+  _compute: {fileID: 7200000, guid: b263aa2e61dfa1643a953d2a6426bfef, type: 3}
 --- !u!4 &1922321557
 Transform:
   m_ObjectHideFlags: 0
