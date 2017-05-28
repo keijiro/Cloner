@@ -31,7 +31,7 @@ void SwarmUpdate(uint id : SV_DispatchThreadID)
     for (uint i = 0; i < ArraySize; i++)
     {
         float3 sn1 = snoise_grad(10.33 + p / 1.5 + Time * 0.038);
-        float3 sn2 = snoise_grad(32.38 - p / 1.5 - Time * 0.028);
+        float3 sn2 = snoise_grad(32.38 - p / 21.5 - Time * 0.028);
         p += cross(sn1, sn2) * 0.0023;
         PositionBuffer[offs].xyz = p;
         offs += InstanceCount;

@@ -7,6 +7,8 @@
         _NormalScale("Normal Scale", Range(0, 1)) = 1
 		_Smoothness("Smoothness", Range(0, 1)) = 0
 		_Metallic("Metallic", Range(0, 1)) = 0
+		_Emission("Emission ", Float) = 0
+		_VariableMotion("Variable Motion", Range(0, 1)) = 0
 	}
 	SubShader
     {
@@ -27,6 +29,8 @@
         half _NormalScale;
 		half _Smoothness;
 		half _Metallic;
+		half _Emission;
+		half _VariableMotion;
 
         half3 _GradientA;
         half3 _GradientB;
@@ -66,8 +70,11 @@
             float3 vn = normalize(vt1 - vt0);
             float3 vb = cross(vt1, vn);
             vn = cross(vb, vt1);
-
-            float2 xy = float2(cos(phi), sin(phi));
+			float2 xy = float2(cos(phi), sin(phi));
+			if(_VariableMotion == 0)
+				xy = float2(cos(phi), sin(phi));
+			else
+				xy = float2(sin(phi), tan(phi));
 
             v.vertex.xyz = p1 + (vn * xy.x + vb * xy.y) * radius;
             v.normal.xyz = vn * xy.x + vb * xy.y;
@@ -87,7 +94,9 @@
         {
             float2 uv = IN.uv_MainTex;
             half3 gradient = saturate(_GradientA + _GradientB * cos(_GradientC * uv.y + _GradientD));
+			
 			o.Albedo = tex2D(_MainTex, uv).rgb * GammaToLinearSpace(gradient);
+			o.Emission = tex2D(_MainTex, uv).rgb * GammaToLinearSpace(gradient) * _Emission;
 			o.Metallic = _Metallic;
 			o.Smoothness = _Smoothness;
             o.Normal = UnpackScaleNormal(tex2D(_NormalMap, uv), _NormalScale);

@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2015
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cloner", "Cloner.csproj", "{EBA620CD-0377-AC1C-03B6-4393EEDEBE15}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cloner.Editor", "Cloner.Editor.csproj", "{01CC1594-A96E-C0F7-4A51-4D128A700532}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EBA620CD-0377-AC1C-03B6-4393EEDEBE15}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EBA620CD-0377-AC1C-03B6-4393EEDEBE15}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EBA620CD-0377-AC1C-03B6-4393EEDEBE15}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EBA620CD-0377-AC1C-03B6-4393EEDEBE15}.Release|Any CPU.Build.0 = Release|Any CPU
+		{01CC1594-A96E-C0F7-4A51-4D128A700532}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{01CC1594-A96E-C0F7-4A51-4D128A700532}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{01CC1594-A96E-C0F7-4A51-4D128A700532}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{01CC1594-A96E-C0F7-4A51-4D128A700532}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
