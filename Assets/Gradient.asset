@@ -11,6 +11,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 54276434dda9c694e85abaf98cdd981d, type: 3}
   m_Name: Gradient
   m_EditorClassIdentifier: 
-  _redCoeffs: {x: 0.79, y: 0.276, z: 1, w: 0}
-  _greenCoeffs: {x: 0.476, y: 0.448, z: 1, w: 0.362}
-  _blueCoeffs: {x: 0.396, y: 0.39, z: 0.66, w: 0.798}
+  _redCoeffs: {x: 0.57, y: 0.32, z: 1, w: 0}
+  _greenCoeffs: {x: 0.38, y: 0.06, z: 0.85, w: 0.26}
+  _blueCoeffs: {x: 0.38, y: 0.08, z: 0.66, w: 0.42}
