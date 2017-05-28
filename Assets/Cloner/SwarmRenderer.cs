@@ -11,6 +11,7 @@ namespace Cloner
         [SerializeField] Material _material;
         [SerializeField] int _instanceCount = 1000;
         [SerializeField] CosineGradient _gradient;
+        [SerializeField] DFVolume.VolumeData _volume;
 
         #endregion
 
@@ -87,6 +88,7 @@ namespace Cloner
             var kernel = _compute.FindKernel("SwarmUpdate");
             _compute.SetFloat("Offset", Time.time);
             _compute.SetBuffer(kernel, "PositionBuffer", _positionBuffer);
+            _compute.SetTexture(kernel, "_Boundaries", _volume.texture);
             _compute.Dispatch(kernel, ThreadGroupCount, 1, 1);
 
             // Draw the mesh with instancing.
