@@ -158,7 +158,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 2
-  m_BackGroundColor: {r: 0.5735294, g: 0.5735294, b: 0.5735294, a: 0}
+  m_BackGroundColor: {r: 0, g: 0, b: 0, a: 0}
   m_NormalizedViewPortRect:
     serializedVersion: 2
     x: 0
@@ -552,9 +552,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _tube: {fileID: 11400000, guid: 132b2abd13d28d2468e91cd6a2634143, type: 2}
   _material: {fileID: 2100000, guid: b3e3f432bd29ac1499686dbad7ae39ef, type: 2}
+<<<<<<< HEAD
+  _instanceCount: 1000
+  _gradient: {fileID: 11400000, guid: 9ed66798e063034448de3491cf029547, type: 2}
+  _compute: {fileID: 7200000, guid: 7a1ae88efe737d44f94f67a6465099fb, type: 3}
+=======
   _instanceCount: 4000
   _gradient: {fileID: 11400000, guid: 202a0875a5bc2554a932e60d8ed7e7ec, type: 2}
   _compute: {fileID: 7200000, guid: b263aa2e61dfa1643a953d2a6426bfef, type: 3}
+>>>>>>> refs/remotes/keijiro/master
 --- !u!4 &1922321557
 Transform:
   m_ObjectHideFlags: 0
