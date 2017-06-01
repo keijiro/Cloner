@@ -1,119 +1,90 @@
 ﻿Shader "Cloner/Default"
 {
-	Properties
+    Properties
     {
-        _Scale("Scale", Float) = 1
-        _NoiseAmp("Noise Amplitude", Float) = 1
         _MainTex("Albedo", 2D) = "white" {}
         _UVScale("UV Scale", Float) = 1
         _NormalMap("Normal Map", 2D) = "bump" {}
         _NormalScale("Normal Scale", Range(0, 1)) = 1
-		_Color("Color", Color) = (1, 1, 1, 1)
-		_Smoothness("Smoothness", Range(0, 1)) = 0
-		_Metallic("Metallic", Range(0, 1)) = 0
-	}
-	SubShader
+        _Color("Color", Color) = (1, 1, 1, 1)
+        _Smoothness("Smoothness", Range(0, 1)) = 0
+        _Metallic("Metallic", Range(0, 1)) = 0
+    }
+    SubShader
     {
-		Tags { "RenderType"="Opaque" }
-		
-		CGPROGRAM
+        Tags { "RenderType"="Opaque" }
 
-		#pragma surface surf Standard addshadow
-        #pragma multi_compile_instancing
+        CGPROGRAM
+
+        #pragma surface surf Standard addshadow
         #pragma instancing_options procedural:setup
 
-        #include "SimplexNoiseGrad3D.cginc"
+        struct Input { float2 uv_MainTex; };
 
-		struct Input
-        {
-            float2 uv_MainTex;
-        };
-
-        half _Scale;
-        half _NoiseAmp;
         sampler2D _MainTex;
         half _UVScale;
         sampler2D _NormalMap;
         half _NormalScale;
-		half4 _Color;
-		half _Smoothness;
-		half _Metallic;
+        half4 _Color;
+        half _Smoothness;
+        half _Metallic;
 
         #ifdef UNITY_PROCEDURAL_INSTANCING_ENABLED
-
-        struct PointBuffer
-        {
-            float4 position;
-            float4 normal;
-            float4 tangent;
-        };
-
-        StructuredBuffer<PointBuffer> _PointBuffer;
-
+        StructuredBuffer<float4> _TransformBuffer;
+        uint _InstanceCount;
         #endif
 
         void setup()
         {
-        #ifdef UNITY_PROCEDURAL_INSTANCING_ENABLED
+            #ifdef UNITY_PROCEDURAL_INSTANCING_ENABLED
 
-            float3 position = _PointBuffer[unity_InstanceID].position.xyz;
-            float3 normal = _PointBuffer[unity_InstanceID].normal.xyz;
-            float4 tangent = _PointBuffer[unity_InstanceID].tangent;
+            uint id = unity_InstanceID;
 
-            float3 sn1 = snoise_grad(position * 2 + float3(0, _Time.x * 3, 0));
-            float3 sn2 = snoise_grad(position * 2 - float3(_Time.x * 3, 0, 0));
-            float3 dfn = cross(sn1, sn2);
+            float4 ps = _TransformBuffer[id + _InstanceCount * 0];
+            float3 rx = _TransformBuffer[id + _InstanceCount * 1];
+            float3 ry = _TransformBuffer[id + _InstanceCount * 2];
+            float3 rz = cross(rx, ry);
 
-            float3 ry = normalize(normal + dfn * _NoiseAmp);
-            float3 rx = normalize(cross(ry, tangent.xyz) * tangent.w);
-            float3 rz = normalize(cross(rx, ry));
+            float3 v1 = rx * ps.w;
+            float3 v2 = ry * ps.w;
+            float3 v3 = rz * ps.w;
 
-            float scale = max(0, (0.3 + sn1.x * 0.15) * (sin(_Time.y) * 0.3 + 0.7)) * _Scale;
+            unity_ObjectToWorld = float4x4(
+                v1.x, v2.x, v3.x, ps.x,
+                v1.y, v2.y, v3.y, ps.y,
+                v1.z, v2.z, v3.z, ps.z,
+                0, 0, 0, 1
+            );
 
-            {
-                float3 v1 = rx * scale;
-                float3 v2 = ry * scale;
-                float3 v3 = rz * scale;
+            float3 v4 = rx / ps.w;
+            float3 v5 = ry / ps.w;
+            float3 v6 = rz / ps.w;
 
-                unity_ObjectToWorld = float4x4(
-                    v1.x, v2.x, v3.x, position.x,
-                    v1.y, v2.y, v3.y, position.y,
-                    v1.z, v2.z, v3.z, position.z,
-                    0, 0, 0, 1
-                );
-            }
+            unity_WorldToObject = float4x4(
+                v1.x, v1.y, v1.z, -ps.x,
+                v2.x, v2.y, v2.z, -ps.x,
+                v3.x, v3.y, v3.z, -ps.x,
+                0, 0, 0, 1
+            );
 
-            {
-                float3 v1 = rx / scale;
-                float3 v2 = ry / scale;
-                float3 v3 = rz / scale;
-
-                unity_WorldToObject = float4x4(
-                    v1.x, v1.y, v1.z, -position.x,
-                    v2.x, v2.y, v2.z, -position.y,
-                    v3.x, v3.y, v3.z, -position.z,
-                    0, 0, 0, 1
-                );
-            }
-
-        #endif
+            #endif
         }
 
-		void surf (Input IN, inout SurfaceOutputStandard o)
+        void surf (Input IN, inout SurfaceOutputStandard o)
         {
             float2 uv = IN.uv_MainTex * _UVScale;
-#ifdef UNITY_PROCEDURAL_INSTANCING_ENABLED
+            #ifdef UNITY_PROCEDURAL_INSTANCING_ENABLED
             uv.x += frac(unity_InstanceID * 0.9389431);
             uv.y += frac(unity_InstanceID * 0.7493248);
-#endif
+            #endif
             fixed4 c = tex2D(_MainTex, uv) * _Color;
-			o.Albedo = c.rgb;
-			o.Metallic = _Metallic;
-			o.Smoothness = _Smoothness;
+            o.Albedo = c.rgb;
+            o.Metallic = _Metallic;
+            o.Smoothness = _Smoothness;
             o.Normal = UnpackScaleNormal(tex2D(_NormalMap, uv), _NormalScale);
-		}
+        }
 
-		ENDCG
-	}
-	FallBack "Diffuse"
+        ENDCG
+    }
+    FallBack "Diffuse"
 }

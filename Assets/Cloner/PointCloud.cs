@@ -34,8 +34,7 @@ namespace Cloner
 
         #region Serialized data fields
 
-        [SerializeField]
-        Vector4[] _data;
+        [SerializeField] Vector4[] _data;
 
         #endregion
 
@@ -50,21 +49,24 @@ namespace Cloner
             var inNormals = mesh.normals;
             var inTangents = mesh.tangents;
 
-            // outVertices is used only for check vertex duplication.
-            var outVertices = new List<Vector3>();
-            var outBuffer = new List<Vector4>();
-
             // Enumerate unique points.
+            var outVertices = new List<Vector3>();
+            var outIndices = new List<int>();
+
             for (var i = 0; i < inVertices.Length; i++)
             {
                 if (!outVertices.Any(_ => _ == inVertices[i]))
                 {
                     outVertices.Add(inVertices[i]);
-                    outBuffer.Add(inVertices[i]);
-                    outBuffer.Add(inNormals[i]);
-                    outBuffer.Add(inTangents[i]);
+                    outIndices.Add(i);
                 }
             }
+
+            // Push all the vertices to the output buffer.
+            var outBuffer = new List<Vector4>();
+            foreach (var i in outIndices) outBuffer.Add(inVertices[i]);
+            foreach (var i in outIndices) outBuffer.Add(inNormals[i]);
+            foreach (var i in outIndices) outBuffer.Add(inTangents[i]);
 
             _data = outBuffer.ToArray();
         }
