@@ -16,10 +16,14 @@
 
         CGPROGRAM
 
-        #pragma surface surf Standard addshadow
+        #pragma surface surf Standard vertex:vert addshadow
         #pragma instancing_options procedural:setup
 
-        struct Input { float2 uv_MainTex; };
+        struct Input
+        {
+            float2 uv_MainTex;
+            float Param : COLOR;
+        };
 
         sampler2D _MainTex;
         half _UVScale;
@@ -29,10 +33,21 @@
         half _Smoothness;
         half _Metallic;
 
+        half3 _GradientA;
+        half3 _GradientB;
+        half3 _GradientC;
+        half3 _GradientD;
+
         #ifdef UNITY_PROCEDURAL_INSTANCING_ENABLED
         StructuredBuffer<float4> _TransformBuffer;
         uint _InstanceCount;
         #endif
+
+        half3 CosineGradient(half param)
+        {
+            half3 c = _GradientB * cos(_GradientC * param + _GradientD);
+            return GammaToLinearSpace(saturate(c + _GradientA));
+        }
 
         void setup()
         {
@@ -70,15 +85,27 @@
             #endif
         }
 
+        void vert(inout appdata_full v, out Input data)
+        {
+            UNITY_INITIALIZE_OUTPUT(Input, data);
+            #ifdef UNITY_PROCEDURAL_INSTANCING_ENABLED
+            v.color = _TransformBuffer[unity_InstanceID + _InstanceCount].w;
+            #endif
+        }
+
         void surf (Input IN, inout SurfaceOutputStandard o)
         {
+
             float2 uv = IN.uv_MainTex * _UVScale;
             #ifdef UNITY_PROCEDURAL_INSTANCING_ENABLED
-            uv.x += frac(unity_InstanceID * 0.9389431);
-            uv.y += frac(unity_InstanceID * 0.7493248);
+            uint id = unity_InstanceID;
+            uv.x += frac(id * 0.9389431);
+            uv.y += frac(id * 0.7493248);
             #endif
-            fixed4 c = tex2D(_MainTex, uv) * _Color;
-            o.Albedo = c.rgb;
+
+            half3 c = tex2D(_MainTex, uv).xyz * _Color * CosineGradient(IN.Param * 0.1);
+
+            o.Albedo = c;
             o.Metallic = _Metallic;
             o.Smoothness = _Smoothness;
             o.Normal = UnpackScaleNormal(tex2D(_NormalMap, uv), _NormalScale);

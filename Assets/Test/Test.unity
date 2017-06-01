@@ -192,7 +192,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 91530764}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -3}
+  m_LocalPosition: {x: 0, y: 0, z: -2}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1234470414}
@@ -239,11 +239,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _pointCloud: {fileID: 11400000, guid: e1030d0eae712d345a2eb75eb4c22bc0, type: 2}
   _template: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
-  _templateScale: 0.0075
+  _templateScale: 0.008
   _material: {fileID: 2100000, guid: 8f6b4b2045f37d0448cc64ce7632f8cb, type: 2}
-  _noiseFrequency: 6
-  _noiseAmplitude: 1
-  _noiseMotion: {x: 0, y: 0.2, z: 0}
+  _gradient: {fileID: 11400000, guid: 46c04dfa8571bc44c8873f6b0dd37849, type: 2}
+  _noiseFrequency: 5
+  _noiseAmplitude: 0.2
+  _noiseMotion: {x: 0.4, y: 0.4, z: 0}
   _compute: {fileID: 7200000, guid: 38648807cddccb549bd3e872d8442617, type: 3}
 --- !u!4 &256545777
 Transform:
@@ -299,7 +300,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 100000, guid: 91d4bea301fe1f941bc1fdb1e5f87859, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 91d4bea301fe1f941bc1fdb1e5f87859, type: 3}
@@ -398,12 +399,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _enablePositionNoise: 1
   _enableRotationNoise: 1
-  _positionFrequency: 0.04
-  _rotationFrequency: 0.04
-  _positionAmplitude: 0.02
+  _positionFrequency: 0.06
+  _rotationFrequency: 0.06
+  _positionAmplitude: 0.05
   _rotationAmplitude: 180
-  _positionScale: {x: 1, y: 2, z: 1}
-  _rotationScale: {x: 0.2, y: 1, z: 0.2}
+  _positionScale: {x: 1, y: 4, z: 1}
+  _rotationScale: {x: 0.1, y: 1, z: 0.1}
   _positionFractalLevel: 2
   _rotationFractalLevel: 2
 --- !u!4 &1234470414

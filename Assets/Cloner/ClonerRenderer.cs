@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using Klak.Chromatics;
 
 namespace Cloner
 {
@@ -29,6 +30,13 @@ namespace Cloner
 
         public Material material {
             get { return _material; }
+        }
+
+        [SerializeField] CosineGradient _gradient;
+
+        public CosineGradient gradient {
+            get { return _gradient; }
+            set { _gradient = value; }
         }
 
         #endregion
@@ -139,6 +147,12 @@ namespace Cloner
             _compute.SetFloat("NoiseAmplitude", _noiseAmplitude);
             _compute.SetVector("NoiseOffset", _noiseOffset);
             _compute.Dispatch(kernel, ThreadGroupCount, 1, 1);
+
+            // Draw the meshes with instancing.
+            _material.SetVector("_GradientA", _gradient.coeffsA);
+            _material.SetVector("_GradientB", _gradient.coeffsB);
+            _material.SetVector("_GradientC", _gradient.coeffsC2);
+            _material.SetVector("_GradientD", _gradient.coeffsD2);
 
             // Draw the meshes with instancing.
             Graphics.DrawMeshInstancedIndirect(

@@ -30,6 +30,6 @@ void ClonerUpdate(uint id : SV_DispatchThreadID)
     float s = saturate(0.5 + sn1.x);
 
     TransformBuffer[id + InstanceCount * 0] = float4(p, BaseScale * s);
-    TransformBuffer[id + InstanceCount * 1] = float4(rx, 0);
-    TransformBuffer[id + InstanceCount * 2] = float4(ry, 0);
+    TransformBuffer[id + InstanceCount * 1] = float4(rx, sn1.y);
+    TransformBuffer[id + InstanceCount * 2] = float4(ry, sn1.z);
 }
