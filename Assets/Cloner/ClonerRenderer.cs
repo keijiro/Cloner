@@ -50,11 +50,18 @@ namespace Cloner
             set { _noiseFrequency = value; }
         }
 
-        [SerializeField] float _noiseAmplitude = 1;
+        [SerializeField] float _directionNoise = 1;
 
-        public float noiseAmplitude {
-            get { return _noiseAmplitude; }
-            set { _noiseAmplitude = value; }
+        public float directionNoise {
+            get { return _directionNoise; }
+            set { _directionNoise = value; }
+        }
+
+        [SerializeField] float _scaleNoise = 0.1f;
+
+        public float scaleNoise {
+            get { return _scaleNoise; }
+            set { _scaleNoise = value; }
         }
 
         [SerializeField] Vector3 _noiseMotion = Vector3.up * 0.2f;
@@ -75,7 +82,9 @@ namespace Cloner
         #region Private fields
 
         ComputeBuffer _drawArgsBuffer;
-        ComputeBuffer _pointBuffer;
+        ComputeBuffer _positionBuffer;
+        ComputeBuffer _normalBuffer;
+        ComputeBuffer _tangentBuffer;
         ComputeBuffer _transformBuffer;
         MaterialPropertyBlock _props;
         Vector3 _noiseOffset;
@@ -87,7 +96,7 @@ namespace Cloner
         const int kThreadCount = 64;
 
         int ThreadGroupCount {
-            get { return _pointCloud.pointCount/ kThreadCount; }
+            get { return _pointCloud.pointCount / kThreadCount; }
         }
 
         int InstanceCount {
@@ -111,12 +120,16 @@ namespace Cloner
             });
 
             // Allocate compute buffers.
-            _pointBuffer = _pointCloud.CreateComputeBuffer();
+            _positionBuffer = _pointCloud.CreatePositionBuffer();
+            _normalBuffer = _pointCloud.CreateNormalBuffer();
+            _tangentBuffer = _pointCloud.CreateTangentBuffer();
             _transformBuffer = new ComputeBuffer(InstanceCount, 3 * 4 * 4);
 
             // Initialize the update kernel.
             var kernel = _compute.FindKernel("ClonerUpdate");
-            _compute.SetBuffer(kernel, "PointBuffer", _pointBuffer);
+            _compute.SetBuffer(kernel, "PositionBuffer", _positionBuffer);
+            _compute.SetBuffer(kernel, "NormalBuffer", _normalBuffer);
+            _compute.SetBuffer(kernel, "TangentBuffer", _tangentBuffer);
             _compute.SetBuffer(kernel, "TransformBuffer", _transformBuffer);
             _compute.SetInt("InstanceCount", InstanceCount);
 
@@ -132,7 +145,9 @@ namespace Cloner
         void OnDestroy()
         {
             _drawArgsBuffer.Release();
-            _pointBuffer.Release();
+            _positionBuffer.Release();
+            _normalBuffer.Release();
+            _tangentBuffer.Release();
             _transformBuffer.Release();
         }
 
@@ -144,7 +159,8 @@ namespace Cloner
             var kernel = _compute.FindKernel("ClonerUpdate");
             _compute.SetFloat("BaseScale", _templateScale);
             _compute.SetFloat("NoiseFrequency", _noiseFrequency);
-            _compute.SetFloat("NoiseAmplitude", _noiseAmplitude);
+            _compute.SetFloat("DirectionNoise", _directionNoise);
+            _compute.SetFloat("ScaleNoise", _scaleNoise);
             _compute.SetVector("NoiseOffset", _noiseOffset);
             _compute.Dispatch(kernel, ThreadGroupCount, 1, 1);
 
@@ -156,7 +172,8 @@ namespace Cloner
 
             // Draw the meshes with instancing.
             Graphics.DrawMeshInstancedIndirect(
-                _template, 0, _material, _template.bounds,
+                _template, 0, _material,
+                new Bounds(Vector3.zero, Vector3.one * 10),
                 _drawArgsBuffer, 0, _props
             );
         }

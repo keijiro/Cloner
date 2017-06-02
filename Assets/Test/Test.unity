@@ -108,6 +108,56 @@ NavMeshSettings:
     tileSize: 256
     accuratePlacement: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &51127016
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 51127018}
+  - component: {fileID: 51127017}
+  m_Layer: 0
+  m_Name: Cloner (1)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &51127017
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 51127016}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d65b562676bfd1f4fb794bd0c10c2952, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _pointCloud: {fileID: 11400000, guid: f9d8a39bc0d53c34fb2b972338d34e50, type: 2}
+  _template: {fileID: 4300000, guid: c048c8a9824a9db47899461552258cb9, type: 3}
+  _templateScale: 0.025
+  _material: {fileID: 2100000, guid: 99fc18d6825b1af42b031e7dbd2b369e, type: 2}
+  _gradient: {fileID: 11400000, guid: 46c04dfa8571bc44c8873f6b0dd37849, type: 2}
+  _noiseFrequency: 5
+  _directionNoise: 0.4
+  _scaleNoise: 0.1
+  _noiseMotion: {x: 0, y: 0.2, z: 0.1}
+  _compute: {fileID: 7200000, guid: 38648807cddccb549bd3e872d8442617, type: 3}
+--- !u!4 &51127018
+Transform:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 51127016}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 4
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &91530764
 GameObject:
   m_ObjectHideFlags: 0
@@ -167,7 +217,7 @@ Camera:
     height: 1
   near clip plane: 0.3
   far clip plane: 100
-  field of view: 12
+  field of view: 14
   orthographic: 0
   orthographic size: 5
   m_Depth: -1
@@ -192,7 +242,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 91530764}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -2}
+  m_LocalPosition: {x: 0, y: 0, z: -1.3}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1234470414}
@@ -225,7 +275,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &256545776
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -237,14 +287,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d65b562676bfd1f4fb794bd0c10c2952, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _pointCloud: {fileID: 11400000, guid: e1030d0eae712d345a2eb75eb4c22bc0, type: 2}
+  _pointCloud: {fileID: 11400000, guid: f9d8a39bc0d53c34fb2b972338d34e50, type: 2}
   _template: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
-  _templateScale: 0.008
+  _templateScale: 0.005
   _material: {fileID: 2100000, guid: 8f6b4b2045f37d0448cc64ce7632f8cb, type: 2}
   _gradient: {fileID: 11400000, guid: 46c04dfa8571bc44c8873f6b0dd37849, type: 2}
-  _noiseFrequency: 5
-  _noiseAmplitude: 0.2
-  _noiseMotion: {x: 0.4, y: 0.4, z: 0}
+  _noiseFrequency: 4
+  _directionNoise: 1
+  _scaleNoise: 0.01
+  _noiseMotion: {x: 0.2, y: 0.4, z: 0.2}
   _compute: {fileID: 7200000, guid: 38648807cddccb549bd3e872d8442617, type: 3}
 --- !u!4 &256545777
 Transform:

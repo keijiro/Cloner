@@ -3,33 +3,37 @@
 #include "UnityCG.cginc"
 #include "SimplexNoise3D.cginc"
 
-StructuredBuffer<float4> PointBuffer;
+StructuredBuffer<float4> PositionBuffer;
+StructuredBuffer<float4> NormalBuffer;
+StructuredBuffer<float4> TangentBuffer;
 RWStructuredBuffer<float4> TransformBuffer;
 
 CBUFFER_START(Params)
     uint InstanceCount;
     float BaseScale;
     float NoiseFrequency;
-    float NoiseAmplitude;
+    float DirectionNoise;
+    float ScaleNoise;
     float3 NoiseOffset;
 CBUFFER_END
 
 [numthreads(64, 1, 1)]
 void ClonerUpdate(uint id : SV_DispatchThreadID)
 {
-    float3 p = PointBuffer[id + InstanceCount * 0].xyz;
-    float3 n = PointBuffer[id + InstanceCount * 1].xyz;
-    float4 t = PointBuffer[id + InstanceCount * 2];
+    float3 p = PositionBuffer[id].xyz;
+    float3 n = NormalBuffer[id].xyz;
+    float4 t = TangentBuffer[id];
 
     float4 sn1 = snoise(98.4898 + p * NoiseFrequency + NoiseOffset);
     float4 sn2 = snoise( 1.2278 - p * NoiseFrequency + NoiseOffset);
     float3 dfn = cross(sn1.xyz, sn2.xyz);
 
-    float3 ry = normalize(n + dfn * NoiseAmplitude);
-    float3 rx = normalize(cross(ry, t.xyz) * t.w);
-    float s = saturate(0.5 + sn1.x);
+    float3 rz = normalize(n + dfn * DirectionNoise);
+    float3 ry = normalize(cross(rz, t.xyz) * t.w);
+    float3 rx = cross(rz, ry);
+    float s = max(0, BaseScale + sn1.w * ScaleNoise);
 
-    TransformBuffer[id + InstanceCount * 0] = float4(p, BaseScale * s);
-    TransformBuffer[id + InstanceCount * 1] = float4(rx, sn1.y);
-    TransformBuffer[id + InstanceCount * 2] = float4(ry, sn1.z);
+    TransformBuffer[id + InstanceCount * 0] = float4(p, s);
+    TransformBuffer[id + InstanceCount * 1] = float4(rx, sn1.w);
+    TransformBuffer[id + InstanceCount * 2] = float4(ry, sn2.w);
 }

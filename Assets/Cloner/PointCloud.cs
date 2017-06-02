@@ -8,9 +8,9 @@ namespace Cloner
     // Serializable point cloud object
     //
     // This is useful to reduce memory allocation during run time.
-    // (Reading vertex data from a mesh doesn't only allocates vector arrays
-    // from GC memory, but also requires "Read/Write Enabled" option on the
-    // mesh inporter that spends heap memory.)
+    // (Reading vertex data from a mesh doesn't only allocates GC memory but
+    // also requires "Read/Write Enabled" option in the mesh importer that
+    // spends heap memory.
     //
     public sealed class PointCloud : ScriptableObject
     {
@@ -18,15 +18,33 @@ namespace Cloner
 
         /// Number of points.
         public int pointCount {
-            get { return _data.Length / 3; }
+            get { return _positionData.Length; }
         }
 
-        /// Create a compute buffer with the point data.
+        /// Create a compute buffer for the position data.
         /// The returned buffer must be released by the caller.
-        public ComputeBuffer CreateComputeBuffer()
+        public ComputeBuffer CreatePositionBuffer()
         {
-            var buffer = new ComputeBuffer(pointCount, 4 * 4 * 3);
-            buffer.SetData(_data);
+            var buffer = new ComputeBuffer(pointCount, sizeof(float) * 4);
+            buffer.SetData(_positionData);
+            return buffer;
+        }
+
+        /// Create a compute buffer for the normal data.
+        /// The returned buffer must be released by the caller.
+        public ComputeBuffer CreateNormalBuffer()
+        {
+            var buffer = new ComputeBuffer(pointCount, sizeof(float) * 4);
+            buffer.SetData(_normalData);
+            return buffer;
+        }
+
+        /// Create a compute buffer for the tangent data.
+        /// The returned buffer must be released by the caller.
+        public ComputeBuffer CreateTangentBuffer()
+        {
+            var buffer = new ComputeBuffer(pointCount, sizeof(float) * 4);
+            buffer.SetData(_tangentData);
             return buffer;
         }
 
@@ -34,7 +52,9 @@ namespace Cloner
 
         #region Serialized data fields
 
-        [SerializeField] Vector4[] _data;
+        [SerializeField] Vector4[] _positionData;
+        [SerializeField] Vector4[] _normalData;
+        [SerializeField] Vector4[] _tangentData;
 
         #endregion
 
@@ -62,13 +82,10 @@ namespace Cloner
                 }
             }
 
-            // Push all the vertices to the output buffer.
-            var outBuffer = new List<Vector4>();
-            foreach (var i in outIndices) outBuffer.Add(inVertices[i]);
-            foreach (var i in outIndices) outBuffer.Add(inNormals[i]);
-            foreach (var i in outIndices) outBuffer.Add(inTangents[i]);
-
-            _data = outBuffer.ToArray();
+            // Convert the data into Vector4 arrays.
+            _positionData = outIndices.Select(i => (Vector4)inVertices[i]).ToArray();
+            _normalData   = outIndices.Select(i => (Vector4)inNormals [i]).ToArray();
+            _tangentData  = outIndices.Select(i =>          inTangents[i]).ToArray();
         }
 
         #endif
