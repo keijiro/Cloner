@@ -9,8 +9,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 54276434dda9c694e85abaf98cdd981d, type: 3}
-  m_Name: Gradient
+  m_Name: Gradient Ring
   m_EditorClassIdentifier: 
-  _redCoeffs: {x: 0.439, y: 0.5, z: 0.47, w: 0}
-  _greenCoeffs: {x: 0.748, y: 0.466, z: 0.53, w: 0.211}
-  _blueCoeffs: {x: 0.5, y: 0.099, z: 0.56, w: 0.969}
+  _redCoeffs: {x: 0.5, y: 0.5, z: 0.47, w: 0}
+  _greenCoeffs: {x: 0.5, y: 0.5, z: 0.4, w: 0.333}
+  _blueCoeffs: {x: 0.592, y: 0.393, z: 0.56, w: 0.305}

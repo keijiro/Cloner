@@ -21,6 +21,11 @@ namespace Cloner
             get { return _positionData.Length; }
         }
 
+        /// Bounding box of the point cloud.
+        public Bounds bounds {
+            get { return _bounds; }
+        }
+
         /// Create a compute buffer for the position data.
         /// The returned buffer must be released by the caller.
         public ComputeBuffer CreatePositionBuffer()
@@ -52,6 +57,7 @@ namespace Cloner
 
         #region Serialized data fields
 
+        [SerializeField] Bounds _bounds;
         [SerializeField] Vector4[] _positionData;
         [SerializeField] Vector4[] _normalData;
         [SerializeField] Vector4[] _tangentData;
@@ -64,6 +70,8 @@ namespace Cloner
 
         public void InitWithMesh(Mesh mesh)
         {
+            _bounds = mesh.bounds;
+
             // Input points
             var inVertices = mesh.vertices;
             var inNormals = mesh.normals;

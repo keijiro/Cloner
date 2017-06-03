@@ -11,10 +11,10 @@ RWStructuredBuffer<float4> TransformBuffer;
 CBUFFER_START(Params)
     uint InstanceCount;
     float BaseScale;
-    float NoiseFrequency;
-    float DirectionNoise;
     float ScaleNoise;
+    float NoiseFrequency;
     float3 NoiseOffset;
+    float NormalModifier;
 CBUFFER_END
 
 [numthreads(64, 1, 1)]
@@ -28,7 +28,7 @@ void ClonerUpdate(uint id : SV_DispatchThreadID)
     float4 sn2 = snoise( 1.2278 - p * NoiseFrequency + NoiseOffset);
     float3 dfn = cross(sn1.xyz, sn2.xyz);
 
-    float3 rz = normalize(n + dfn * DirectionNoise);
+    float3 rz = normalize(n + dfn * NormalModifier);
     float3 ry = normalize(cross(rz, t.xyz) * t.w);
     float3 rx = cross(rz, ry);
     float s = max(0, BaseScale + sn1.w * ScaleNoise);

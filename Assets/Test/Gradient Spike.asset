@@ -1,0 +1,16 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54276434dda9c694e85abaf98cdd981d, type: 3}
+  m_Name: Gradient Spike
+  m_EditorClassIdentifier: 
+  _redCoeffs: {x: 0.939, y: 0.581, z: 0.47, w: 0.162}
+  _greenCoeffs: {x: 0.243, y: 0.404, z: 0.68, w: 0.468}
+  _blueCoeffs: {x: 0.64, y: 0.361, z: 0.65, w: 0.69}

@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.43854734, g: 0.47558147, b: 0.56310064, a: 1}
+  m_IndirectSpecularColor: {r: 0.24622981, g: 0.26702595, b: 0.31616476, a: 1}
 --- !u!157 &3
 LightmapSettings:
   m_ObjectHideFlags: 0
@@ -108,56 +108,6 @@ NavMeshSettings:
     tileSize: 256
     accuratePlacement: 0
   m_NavMeshData: {fileID: 0}
---- !u!1 &51127016
-GameObject:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  serializedVersion: 5
-  m_Component:
-  - component: {fileID: 51127018}
-  - component: {fileID: 51127017}
-  m_Layer: 0
-  m_Name: Cloner 2
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &51127017
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 51127016}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d65b562676bfd1f4fb794bd0c10c2952, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _pointCloud: {fileID: 11400000, guid: f9d8a39bc0d53c34fb2b972338d34e50, type: 2}
-  _template: {fileID: 4300002, guid: c048c8a9824a9db47899461552258cb9, type: 3}
-  _templateScale: 0.005
-  _material: {fileID: 2100000, guid: 99fc18d6825b1af42b031e7dbd2b369e, type: 2}
-  _gradient: {fileID: 11400000, guid: c0d91facd536a07448fd8f20429dad25, type: 2}
-  _noiseFrequency: 5
-  _directionNoise: 0.3
-  _scaleNoise: 0.075
-  _noiseMotion: {x: 0, y: 0.2, z: 0.1}
-  _compute: {fileID: 7200000, guid: 38648807cddccb549bd3e872d8442617, type: 3}
---- !u!4 &51127018
-Transform:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 51127016}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 4
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &91530764
 GameObject:
   m_ObjectHideFlags: 0
@@ -209,7 +159,7 @@ Camera:
   m_GameObject: {fileID: 91530764}
   m_Enabled: 1
   serializedVersion: 2
-  m_ClearFlags: 2
+  m_ClearFlags: 1
   m_BackGroundColor: {r: 0.5735294, g: 0.5735294, b: 0.5735294, a: 0}
   m_NormalizedViewPortRect:
     serializedVersion: 2
@@ -525,7 +475,7 @@ GameObject:
   - component: {fileID: 256545777}
   - component: {fileID: 256545776}
   m_Layer: 0
-  m_Name: Cloner 1
+  m_Name: Cloner Ring
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -542,15 +492,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d65b562676bfd1f4fb794bd0c10c2952, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _pointCloud: {fileID: 11400000, guid: f9d8a39bc0d53c34fb2b972338d34e50, type: 2}
+  _pointSource: {fileID: 11400000, guid: b66c5c296213bd24091fc91bf5f4bbb1, type: 2}
   _template: {fileID: 4300006, guid: 1102b04e830d6cc4892d768045da483e, type: 3}
   _templateScale: 0.005
-  _material: {fileID: 2100000, guid: 8f6b4b2045f37d0448cc64ce7632f8cb, type: 2}
-  _gradient: {fileID: 11400000, guid: 46c04dfa8571bc44c8873f6b0dd37849, type: 2}
+  _scaleByNoise: 0.015
   _noiseFrequency: 4
-  _directionNoise: 1
-  _scaleNoise: 0.01
-  _noiseMotion: {x: 0.2, y: 0.4, z: 0.2}
+  _noiseMotion: {x: 0, y: 0.25, z: 0.1}
+  _normalModifier: 0.8
+  _material: {fileID: 2100000, guid: 8f6b4b2045f37d0448cc64ce7632f8cb, type: 2}
+  _gradient: {fileID: 11400000, guid: c0d91facd536a07448fd8f20429dad25, type: 2}
   _compute: {fileID: 7200000, guid: 38648807cddccb549bd3e872d8442617, type: 3}
 --- !u!4 &256545777
 Transform:
@@ -606,11 +556,61 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 100000, guid: 91d4bea301fe1f941bc1fdb1e5f87859, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 91d4bea301fe1f941bc1fdb1e5f87859, type: 3}
   m_IsPrefabParent: 0
+--- !u!1 &922481381
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 922481383}
+  - component: {fileID: 922481382}
+  m_Layer: 0
+  m_Name: Cloner Spike
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &922481382
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 922481381}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d65b562676bfd1f4fb794bd0c10c2952, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _pointSource: {fileID: 11400000, guid: b66c5c296213bd24091fc91bf5f4bbb1, type: 2}
+  _template: {fileID: 4300002, guid: c048c8a9824a9db47899461552258cb9, type: 3}
+  _templateScale: 0
+  _scaleByNoise: 0.13
+  _noiseFrequency: 6
+  _noiseMotion: {x: 0, y: 0.14, z: -0.1}
+  _normalModifier: 0.4
+  _material: {fileID: 2100000, guid: 99fc18d6825b1af42b031e7dbd2b369e, type: 2}
+  _gradient: {fileID: 11400000, guid: 46c04dfa8571bc44c8873f6b0dd37849, type: 2}
+  _compute: {fileID: 7200000, guid: 38648807cddccb549bd3e872d8442617, type: 3}
+--- !u!4 &922481383
+Transform:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 922481381}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 4
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1074598570
 GameObject:
   m_ObjectHideFlags: 0
@@ -636,18 +636,18 @@ Light:
   m_Enabled: 1
   serializedVersion: 8
   m_Type: 1
-  m_Color: {r: 1, g: 0.9502096, b: 0.8392157, a: 1}
-  m_Intensity: 1.2
+  m_Color: {r: 1, g: 0.88384336, b: 0.6691177, a: 1}
+  m_Intensity: 1.1
   m_Range: 10
   m_SpotAngle: 30
   m_CookieSize: 10
   m_Shadows:
     m_Type: 2
-    m_Resolution: 2
+    m_Resolution: -1
     m_CustomResolution: -1
     m_Strength: 1
-    m_Bias: 0.05
-    m_NormalBias: 0.4
+    m_Bias: 0.001
+    m_NormalBias: 0.05
     m_NearPlane: 0.2
   m_Cookie: {fileID: 0}
   m_DrawHalo: 0

@@ -11,6 +11,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d093c82374b80e8479f0ed46fbe92ff4, type: 3}
   m_Name: BootlegEve Points
   m_EditorClassIdentifier: 
+  _bounds:
+    m_Center: {x: 0.0041535012, y: 0.29861975, z: 0.00479465}
+    m_Extent: {x: 0.104643494, y: 0.30009824, z: 0.09520635}
   _positionData:
   - {x: -0.0913808, y: 0.0418862, z: -0.0883836, w: 0}
   - {x: -0.0963587, y: 0.0421446, z: -0.0835285, w: 0}
