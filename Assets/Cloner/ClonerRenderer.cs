@@ -115,8 +115,7 @@ namespace Cloner
             );
 
             _drawArgsBuffer.SetData(new uint[5] {
-                _template.GetIndexCount(0),
-                (uint)InstanceCount, 0, 0, 0
+                _template.GetIndexCount(0), (uint)InstanceCount, 0, 0, 0
             });
 
             // Allocate compute buffers.
@@ -124,18 +123,6 @@ namespace Cloner
             _normalBuffer = _pointCloud.CreateNormalBuffer();
             _tangentBuffer = _pointCloud.CreateTangentBuffer();
             _transformBuffer = new ComputeBuffer(InstanceCount, 3 * 4 * 4);
-
-            // Initialize the update kernel.
-            var kernel = _compute.FindKernel("ClonerUpdate");
-            _compute.SetBuffer(kernel, "PositionBuffer", _positionBuffer);
-            _compute.SetBuffer(kernel, "NormalBuffer", _normalBuffer);
-            _compute.SetBuffer(kernel, "TangentBuffer", _tangentBuffer);
-            _compute.SetBuffer(kernel, "TransformBuffer", _transformBuffer);
-            _compute.SetInt("InstanceCount", InstanceCount);
-
-            // Initialize the material.
-            _material.SetBuffer("_TransformBuffer", _transformBuffer);
-            _material.SetInt("_InstanceCount", InstanceCount);
 
             // This property block is used only for avoiding an instancing bug.
             _props = new MaterialPropertyBlock();
@@ -153,24 +140,35 @@ namespace Cloner
 
         void Update()
         {
+            // Move the noise field.
             _noiseOffset += _noiseMotion * Time.deltaTime;
 
             // Update the transform buffer.
             var kernel = _compute.FindKernel("ClonerUpdate");
+
+            _compute.SetInt("InstanceCount", InstanceCount);
             _compute.SetFloat("BaseScale", _templateScale);
             _compute.SetFloat("NoiseFrequency", _noiseFrequency);
             _compute.SetFloat("DirectionNoise", _directionNoise);
             _compute.SetFloat("ScaleNoise", _scaleNoise);
             _compute.SetVector("NoiseOffset", _noiseOffset);
+
+            _compute.SetBuffer(kernel, "PositionBuffer", _positionBuffer);
+            _compute.SetBuffer(kernel, "NormalBuffer", _normalBuffer);
+            _compute.SetBuffer(kernel, "TangentBuffer", _tangentBuffer);
+            _compute.SetBuffer(kernel, "TransformBuffer", _transformBuffer);
+
             _compute.Dispatch(kernel, ThreadGroupCount, 1, 1);
 
-            // Draw the meshes with instancing.
+            // Draw the mesh with instancing.
             _material.SetVector("_GradientA", _gradient.coeffsA);
             _material.SetVector("_GradientB", _gradient.coeffsB);
             _material.SetVector("_GradientC", _gradient.coeffsC2);
             _material.SetVector("_GradientD", _gradient.coeffsD2);
 
-            // Draw the meshes with instancing.
+            _material.SetInt("_InstanceCount", InstanceCount);
+            _material.SetBuffer("_TransformBuffer", _transformBuffer);
+
             Graphics.DrawMeshInstancedIndirect(
                 _template, 0, _material,
                 new Bounds(Vector3.zero, Vector3.one * 10),

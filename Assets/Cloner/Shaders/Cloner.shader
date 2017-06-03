@@ -18,6 +18,7 @@
 
         #pragma surface surf Standard vertex:vert addshadow
         #pragma instancing_options procedural:setup
+        #pragma target 5.0
 
         struct Input
         {
