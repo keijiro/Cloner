@@ -159,8 +159,8 @@ Camera:
   m_GameObject: {fileID: 91530764}
   m_Enabled: 1
   serializedVersion: 2
-  m_ClearFlags: 1
-  m_BackGroundColor: {r: 0.5735294, g: 0.5735294, b: 0.5735294, a: 0}
+  m_ClearFlags: 2
+  m_BackGroundColor: {r: 0.5588235, g: 0.5588235, b: 0.5588235, a: 0}
   m_NormalizedViewPortRect:
     serializedVersion: 2
     x: 0
@@ -709,7 +709,7 @@ MonoBehaviour:
   _rotationFrequency: 0.06
   _positionAmplitude: 0.05
   _rotationAmplitude: 180
-  _positionScale: {x: 1, y: 4, z: 1}
+  _positionScale: {x: 1, y: 6, z: 1}
   _rotationScale: {x: 0.1, y: 1, z: 0.1}
   _positionFractalLevel: 2
   _rotationFractalLevel: 2
