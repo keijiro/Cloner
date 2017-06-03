@@ -1,22 +1,22 @@
 fileFormatVersion: 2
-guid: c048c8a9824a9db47899461552258cb9
-timeCreated: 1495116217
+guid: 8f1d70ba9ed64094fb578ca43b319f4d
+timeCreated: 1496454170
 licenseType: Pro
 ModelImporter:
   serializedVersion: 19
   fileIDToRecycleName:
-    100000: default
-    100002: //RootNode
-    100004: Spike
-    400000: default
-    400002: //RootNode
-    400004: Spike
+    100000: //RootNode
+    100002: default
+    100004: Box
+    400000: //RootNode
+    400002: default
+    400004: Box
     2300000: default
-    2300002: Spike
+    2300002: Box
     3300000: default
-    3300002: Spike
+    3300002: Box
     4300000: default
-    4300002: Spike
+    4300002: Box
   materials:
     importMaterials: 0
     materialName: 0

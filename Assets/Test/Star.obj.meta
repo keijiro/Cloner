@@ -1,22 +1,37 @@
 fileFormatVersion: 2
-guid: c048c8a9824a9db47899461552258cb9
-timeCreated: 1495116217
+guid: 65d4d92c3bf5d854b8a02f31b6896108
+timeCreated: 1496454170
 licenseType: Pro
 ModelImporter:
   serializedVersion: 19
   fileIDToRecycleName:
-    100000: default
-    100002: //RootNode
-    100004: Spike
-    400000: default
-    400002: //RootNode
-    400004: Spike
+    100000: //RootNode
+    100002: default
+    100004: Box
+    100006: SmallSphere
+    100008: Sphere
+    100010: star
+    400000: //RootNode
+    400002: default
+    400004: Box
+    400006: SmallSphere
+    400008: Sphere
+    400010: star
     2300000: default
-    2300002: Spike
+    2300002: Box
+    2300004: SmallSphere
+    2300006: Sphere
+    2300008: star
     3300000: default
-    3300002: Spike
+    3300002: Box
+    3300004: SmallSphere
+    3300006: Sphere
+    3300008: star
     4300000: default
-    4300002: Spike
+    4300002: Box
+    4300004: SmallSphere
+    4300006: Sphere
+    4300008: star
   materials:
     importMaterials: 0
     materialName: 0
