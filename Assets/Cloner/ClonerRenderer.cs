@@ -1,4 +1,7 @@
-﻿using UnityEngine;
+// Cloner - An example of use of procedural instancing.
+// https://github.com/keijiro/Cloner
+
+using UnityEngine;
 using Klak.Chromatics;
 
 namespace Cloner

@@ -1,4 +1,7 @@
-﻿Shader "Cloner/Surface"
+// Cloner - An example of use of procedural instancing.
+// https://github.com/keijiro/Cloner
+
+Shader "Cloner/Surface"
 {
     Properties
     {

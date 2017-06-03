@@ -1,3 +1,6 @@
+// Cloner - An example of use of procedural instancing.
+// https://github.com/keijiro/Cloner
+
 #pragma kernel ClonerUpdate
 
 #include "UnityCG.cginc"
