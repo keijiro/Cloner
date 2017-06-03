@@ -9,9 +9,10 @@ Cloner
 was newly introduced in Unity 5.6.
 
 *Cloner* creates instances of a given template mesh and place them onto
-vertices of a base model. It uses a [compute shader] for vertex animation
-and [GPU instancing] for duplicating the template mode. With helps of these
-GPU features, it draws complex animation without spending much CPU time.
+vertices of a given base model. It uses a [compute shader] for vertex
+animation and [GPU instancing] for duplicating the template model. With helps
+of these GPU features, it can draw complex animation without spending much
+CPU time.
 
 [procedural instancing]: https://docs.unity3d.com/ScriptReference/Graphics.DrawMeshInstancedIndirect.html
 [compute shader]: https://docs.unity3d.com/Manual/ComputeShaders.html
