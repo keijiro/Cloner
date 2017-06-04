@@ -6,6 +6,7 @@ using UnityEditor;
 
 namespace Cloner
 {
+    [CanEditMultipleObjects]
     [CustomEditor(typeof(ClonerRenderer))]
     public sealed class ClonerRendererEditor : Editor
     {
