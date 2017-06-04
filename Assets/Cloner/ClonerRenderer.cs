@@ -102,6 +102,15 @@ namespace Cloner
         Bounds _bounds;
         Vector3 _noiseOffset;
 
+        Bounds TransformedBounds {
+            get {
+                return new Bounds(
+                    transform.TransformPoint(_bounds.center),
+                    Vector3.Scale(transform.lossyScale, _bounds.size)
+                );
+            }
+        }
+
         #endregion
 
         #region Compute configurations
@@ -194,7 +203,7 @@ namespace Cloner
             _material.SetBuffer("_TransformBuffer", _transformBuffer);
 
             Graphics.DrawMeshInstancedIndirect(
-                _template, 0, _material, _bounds,
+                _template, 0, _material, TransformedBounds,
                 _drawArgsBuffer, 0, _props
             );
         }
