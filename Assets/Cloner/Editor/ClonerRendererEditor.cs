@@ -22,6 +22,8 @@ namespace Cloner
         SerializedProperty _material;
         SerializedProperty _gradient;
 
+        SerializedProperty _randomSeed;
+
         static class Labels
         {
             public static GUIContent frequency = new GUIContent("Frequency");
@@ -43,6 +45,8 @@ namespace Cloner
 
             _material = serializedObject.FindProperty("_material");
             _gradient = serializedObject.FindProperty("_gradient");
+
+            _randomSeed = serializedObject.FindProperty("_randomSeed");
         }
 
         public override void OnInspectorGUI()
@@ -66,6 +70,7 @@ namespace Cloner
 
             EditorGUILayout.PropertyField(_material);
             EditorGUILayout.PropertyField(_gradient);
+            EditorGUILayout.PropertyField(_randomSeed);
 
             serializedObject.ApplyModifiedProperties();
         }

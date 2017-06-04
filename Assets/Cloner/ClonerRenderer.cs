@@ -85,6 +85,16 @@ namespace Cloner
 
         #endregion
 
+        #region Material properties
+
+        [SerializeField] int _randomSeed;
+
+        public int randomSeed {
+            get { return _randomSeed; }
+        }
+
+        #endregion
+
         #region Hidden attributes
 
         [SerializeField, HideInInspector] ComputeShader _compute;
@@ -153,6 +163,9 @@ namespace Cloner
                 _props.SetFloat("_UniqueID", Random.value);
             }
 
+            // Initial noise offset = random seed
+            _noiseOffset = Vector3.one * _randomSeed;
+
             // Slightly expand the bounding box.
             _bounds = _pointSource.bounds;
             _bounds.Expand(_bounds.extents * 0.25f);
@@ -191,6 +204,8 @@ namespace Cloner
             _compute.Dispatch(kernel, ThreadGroupCount, 1, 1);
 
             // Draw the template mesh with instancing.
+            _material.SetFloat("_RandomSeed", _randomSeed);
+
             _material.SetVector("_GradientA", _gradient.coeffsA);
             _material.SetVector("_GradientB", _gradient.coeffsB);
             _material.SetVector("_GradientC", _gradient.coeffsC2);

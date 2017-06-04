@@ -36,6 +36,8 @@ Shader "Cloner/Surface"
         sampler2D _NormalMap;
         half _NormalScale;
 
+        int _RandomSeed;
+
         half3 _GradientA;
         half3 _GradientB;
         half3 _GradientC;
@@ -51,6 +53,7 @@ Shader "Cloner/Surface"
 
         float Random(float u, float v)
         {
+            v += _RandomSeed * 30.4953;
             float f = dot(float2(12.9898, 78.233), float2(u, v));
             return frac(43758.5453 * sin(f));
         }
