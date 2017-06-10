@@ -18,14 +18,14 @@ Shader "Cloner/Surface"
 
         CGPROGRAM
 
-        #pragma surface surf Standard vertex:vert addshadow
+        #pragma surface surf Standard vertex:vert addshadow nolightmap
         #pragma instancing_options procedural:setup
         #pragma target 4.0
 
         struct Input
         {
             float2 uv_MainTex;
-            float GradientParam : COLOR;
+            half4 Color : COLOR;
         };
 
         sampler2D _MainTex;
@@ -113,27 +113,19 @@ Shader "Cloner/Surface"
             #ifdef UNITY_PROCEDURAL_INSTANCING_ENABLED
 
             uint id = unity_InstanceID;
-            v.color = 0.5 + _TransformBuffer[id + _InstanceCount * 2].w;
+            half param = 0.5 + _TransformBuffer[id + _InstanceCount * 2].w;
+            v.color = half4(CosineGradient(param), 1);
+            v.texcoord.x += Random(id * 0.0001, 0.2741);
+            v.texcoord.y += Random(0.3179, id * 0.0001);
 
             #endif
         }
 
-        void surf (Input IN, inout SurfaceOutputStandard o)
+        void surf(Input IN, inout SurfaceOutputStandard o)
         {
             float2 uv = IN.uv_MainTex;
 
-            #ifdef UNITY_PROCEDURAL_INSTANCING_ENABLED
-
-            uint id = unity_InstanceID;
-            uv.x += Random(id * 0.0001, 0.2741);
-            uv.y += Random(0.3179, id * 0.0001);
-
-            #endif
-
-            half3 c = tex2D(_MainTex, uv).rgb * _Color.rgb;
-            c *= CosineGradient(IN.GradientParam);
-
-            o.Albedo = c;
+            o.Albedo = tex2D(_MainTex, uv).rgb * _Color.rgb * IN.Color.rgb;
             o.Metallic = _Metallic;
             o.Smoothness = _Smoothness;
 
