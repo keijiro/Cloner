@@ -496,9 +496,12 @@ MonoBehaviour:
   _template: {fileID: 4300006, guid: 1102b04e830d6cc4892d768045da483e, type: 3}
   _templateScale: 0.005
   _scaleByNoise: 0.015
+  _scaleByPulse: 0.005
   _noiseFrequency: 4
   _noiseMotion: {x: 0, y: 0.25, z: 0.1}
-  _normalModifier: 0.8
+  _normalModifier: 0.4
+  _pulseProbability: 0.1
+  _pulseFrequency: 2
   _material: {fileID: 2100000, guid: 8f6b4b2045f37d0448cc64ce7632f8cb, type: 2}
   _gradient: {fileID: 11400000, guid: c0d91facd536a07448fd8f20429dad25, type: 2}
   _randomSeed: 3
@@ -593,9 +596,12 @@ MonoBehaviour:
   _template: {fileID: 4300002, guid: c048c8a9824a9db47899461552258cb9, type: 3}
   _templateScale: 0
   _scaleByNoise: 0.018
+  _scaleByPulse: 0.02
   _noiseFrequency: 6
   _noiseMotion: {x: 0, y: 0.14, z: -0.1}
   _normalModifier: 0.4
+  _pulseProbability: 0.003
+  _pulseFrequency: 3
   _material: {fileID: 2100000, guid: 99fc18d6825b1af42b031e7dbd2b369e, type: 2}
   _gradient: {fileID: 11400000, guid: 46c04dfa8571bc44c8873f6b0dd37849, type: 2}
   _randomSeed: 0
