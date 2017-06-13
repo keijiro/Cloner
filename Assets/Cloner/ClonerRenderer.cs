@@ -180,7 +180,7 @@ namespace Cloner
             _positionBuffer = _pointSource.CreatePositionBuffer();
             _normalBuffer = _pointSource.CreateNormalBuffer();
             _tangentBuffer = _pointSource.CreateTangentBuffer();
-            _transformBuffer = new ComputeBuffer(InstanceCount, 3 * 4 * 4);
+            _transformBuffer = new ComputeBuffer(InstanceCount * 3, 4 * 4);
 
             // This property block is used only for avoiding an instancing bug.
             _props = new MaterialPropertyBlock();
