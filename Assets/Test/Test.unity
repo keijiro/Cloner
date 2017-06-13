@@ -504,6 +504,9 @@ MonoBehaviour:
   _pulseFrequency: 2
   _material: {fileID: 2100000, guid: 8f6b4b2045f37d0448cc64ce7632f8cb, type: 2}
   _gradient: {fileID: 11400000, guid: c0d91facd536a07448fd8f20429dad25, type: 2}
+  _bounds:
+    m_Center: {x: 0, y: 0.275, z: 0}
+    m_Extent: {x: 0.5, y: 0.5, z: 0.5}
   _randomSeed: 3
   _compute: {fileID: 7200000, guid: 38648807cddccb549bd3e872d8442617, type: 3}
 --- !u!4 &256545777
@@ -604,6 +607,9 @@ MonoBehaviour:
   _pulseFrequency: 3
   _material: {fileID: 2100000, guid: 99fc18d6825b1af42b031e7dbd2b369e, type: 2}
   _gradient: {fileID: 11400000, guid: 46c04dfa8571bc44c8873f6b0dd37849, type: 2}
+  _bounds:
+    m_Center: {x: 0, y: 0.275, z: 0}
+    m_Extent: {x: 0.5, y: 0.5, z: 0.5}
   _randomSeed: 0
   _compute: {fileID: 7200000, guid: 38648807cddccb549bd3e872d8442617, type: 3}
 --- !u!4 &922481383

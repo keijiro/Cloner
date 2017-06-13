@@ -111,6 +111,13 @@ namespace Cloner
 
         #region Misc properties
 
+        [SerializeField] Bounds _bounds = new Bounds(Vector3.zero, Vector3.one);
+
+        public Bounds bounds {
+            get { return _bounds; }
+            set { _bounds = value; }
+        }
+
         [SerializeField] int _randomSeed;
 
         public int randomSeed {
@@ -134,7 +141,6 @@ namespace Cloner
         ComputeBuffer _transformBuffer;
         bool _materialCloned;
         MaterialPropertyBlock _props;
-        Bounds _bounds;
         Vector3 _noiseOffset;
         float _pulseTimer;
 
@@ -194,10 +200,6 @@ namespace Cloner
             _material = new Material(_material);
             _material.name += " (cloned)";
             _materialCloned = true;
-
-            // Slightly expand the bounding box.
-            _bounds = _pointSource.bounds;
-            _bounds.Expand(_bounds.extents * 0.25f);
         }
 
         void OnDestroy()
@@ -256,6 +258,13 @@ namespace Cloner
             // Update the internal state.
             _noiseOffset += _noiseMotion * Time.deltaTime;
             _pulseTimer += _pulseFrequency * Time.deltaTime;
+        }
+
+        void OnDrawGizmos()
+        {
+            Gizmos.matrix = transform.localToWorldMatrix;
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawWireCube(_bounds.center, _bounds.size);
         }
 
         #endregion
