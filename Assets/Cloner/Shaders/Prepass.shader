@@ -5,10 +5,10 @@ Shader "Cloner/Prepass"
 {
     SubShader
     {
-        Colormask 0
-
         Pass
         {
+        Colormask 0
+
         CGPROGRAM
 
         #pragma vertex vert
@@ -63,9 +63,8 @@ Shader "Cloner/Prepass"
             return mul(UNITY_MATRIX_VP, mul(o2w, vertex));
         }
 
-        fixed4 frag(float4 position : SV_POSITION) : SV_Target
+        void frag()
         {
-            return 0;
         }
 
         ENDCG

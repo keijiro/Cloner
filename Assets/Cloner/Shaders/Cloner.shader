@@ -16,6 +16,8 @@ Shader "Cloner/Surface"
     {
         Tags { "RenderType"="Opaque" }
 
+        ZWrite off
+
         CGPROGRAM
 
         #pragma surface surf Standard vertex:vert addshadow nolightmap

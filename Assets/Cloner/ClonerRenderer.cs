@@ -252,10 +252,17 @@ namespace Cloner
             _prepassMaterial.SetInt("_InstanceCount", InstanceCount);
 
             _prepassCommand.Clear();
-            _prepassCommand.SetRenderTarget(BuiltinRenderTextureType.GBuffer0, BuiltinRenderTextureType.CameraTarget);
+
+            var camera = Camera.main;
+            var prepassTemp = Shader.PropertyToID("PrepassTemp");
+            _prepassCommand.GetTemporaryRT(prepassTemp, camera.pixelWidth, camera.pixelHeight, 24, FilterMode.Point, RenderTextureFormat.Depth);
+            _prepassCommand.SetRenderTarget(prepassTemp, BuiltinRenderTextureType.CameraTarget);
+
             _prepassCommand.DrawMeshInstancedIndirect(
                 _template, 0, _prepassMaterial, 0, _drawArgsBuffer, 0, _props
             );
+
+            _prepassCommand.ReleaseTemporaryRT(prepassTemp);
 
             Camera.main.AddCommandBuffer(CameraEvent.BeforeGBuffer, _prepassCommand);
 
