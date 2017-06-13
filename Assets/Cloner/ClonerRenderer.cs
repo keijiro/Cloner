@@ -2,6 +2,7 @@
 // https://github.com/keijiro/Cloner
 
 using UnityEngine;
+using UnityEngine.Rendering;
 using Klak.Chromatics;
 
 namespace Cloner
@@ -122,6 +123,7 @@ namespace Cloner
         #region Hidden attributes
 
         [SerializeField, HideInInspector] ComputeShader _compute;
+        [SerializeField] Shader _prepassShader;
 
         #endregion
 
@@ -137,6 +139,9 @@ namespace Cloner
         Bounds _bounds;
         Vector3 _noiseOffset;
         float _pulseTimer;
+
+        Material _prepassMaterial;
+        CommandBuffer _prepassCommand;
 
         Bounds TransformedBounds {
             get {
@@ -198,6 +203,10 @@ namespace Cloner
             // Slightly expand the bounding box.
             _bounds = _pointSource.bounds;
             _bounds.Expand(_bounds.extents * 0.25f);
+
+            _prepassMaterial = new Material(_prepassShader);
+            _prepassCommand = new CommandBuffer();
+            _prepassCommand.name = "Cloner Prepass";
         }
 
         void OnDestroy()
@@ -235,6 +244,20 @@ namespace Cloner
             _compute.SetBuffer(kernel, "TransformBuffer", _transformBuffer);
 
             _compute.Dispatch(kernel, ThreadGroupCount, 1, 1);
+
+            Camera.main.RemoveCommandBuffer(CameraEvent.BeforeGBuffer, _prepassCommand);
+
+            _prepassMaterial.SetMatrix("_LocalToWorld", transform.localToWorldMatrix);
+            _prepassMaterial.SetBuffer("_TransformBuffer", _transformBuffer);
+            _prepassMaterial.SetInt("_InstanceCount", InstanceCount);
+
+            _prepassCommand.Clear();
+            _prepassCommand.SetRenderTarget(BuiltinRenderTextureType.GBuffer0, BuiltinRenderTextureType.CameraTarget);
+            _prepassCommand.DrawMeshInstancedIndirect(
+                _template, 0, _prepassMaterial, 0, _drawArgsBuffer, 0, _props
+            );
+
+            Camera.main.AddCommandBuffer(CameraEvent.BeforeGBuffer, _prepassCommand);
 
             // Draw the template mesh with instancing.
             _material.SetVector("_GradientA", _gradient.coeffsA);
