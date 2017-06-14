@@ -111,7 +111,8 @@ namespace Cloner
 
         #region Misc properties
 
-        [SerializeField] Bounds _bounds = new Bounds(Vector3.zero, Vector3.one);
+        [SerializeField] Bounds _bounds =
+            new Bounds(Vector3.zero, Vector3.one * 10);
 
         public Bounds bounds {
             get { return _bounds; }
@@ -170,6 +171,13 @@ namespace Cloner
         #endregion
 
         #region MonoBehaviour functions
+
+        void OnValidate()
+        {
+            _noiseFrequency = Mathf.Max(0, _noiseFrequency);
+            _pulseFrequency = Mathf.Max(0, _pulseFrequency);
+            _bounds.size = Vector3.Max(Vector3.zero, _bounds.size);
+        }
 
         void Start()
         {
@@ -262,8 +270,15 @@ namespace Cloner
 
         void OnDrawGizmos()
         {
+            Gizmos.color = new Color(0, 1, 1, 0.3f);
             Gizmos.matrix = transform.localToWorldMatrix;
+            Gizmos.DrawWireCube(_bounds.center, _bounds.size);
+        }
+
+        void OnDrawGizmosSelected()
+        {
             Gizmos.color = Color.yellow;
+            Gizmos.matrix = transform.localToWorldMatrix;
             Gizmos.DrawWireCube(_bounds.center, _bounds.size);
         }
 
