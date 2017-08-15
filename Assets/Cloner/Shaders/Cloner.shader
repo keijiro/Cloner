@@ -20,7 +20,6 @@ Shader "Cloner/Surface"
 
         #pragma surface surf Standard vertex:vert addshadow nolightmap
         #pragma instancing_options procedural:setup
-        #pragma target 4.0
 
         struct Input
         {
