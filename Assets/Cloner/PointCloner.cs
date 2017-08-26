@@ -8,7 +8,7 @@ using Klak.Chromatics;
 namespace Cloner
 {
     [ExecuteInEditMode]
-    public sealed class ClonerRenderer : MonoBehaviour, ITimeControl
+    public sealed class PointCloner : MonoBehaviour, ITimeControl
     {
         #region Point source properties
 

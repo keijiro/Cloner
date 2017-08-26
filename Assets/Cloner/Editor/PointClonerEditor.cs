@@ -7,8 +7,8 @@ using UnityEditor;
 namespace Cloner
 {
     [CanEditMultipleObjects]
-    [CustomEditor(typeof(ClonerRenderer))]
-    public sealed class ClonerRendererEditor : Editor
+    [CustomEditor(typeof(PointCloner))]
+    public sealed class PointClonerEditor : Editor
     {
         SerializedProperty _pointSource;
 
