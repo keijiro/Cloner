@@ -140,7 +140,7 @@ namespace Cloner
         ComputeBuffer _normalBuffer;
         ComputeBuffer _tangentBuffer;
         ComputeBuffer _transformBuffer;
-        bool _materialCloned;
+        Material _tempMaterial;
         MaterialPropertyBlock _props;
         Vector3 _noiseOffset;
         float _pulseTimer;
@@ -204,10 +204,9 @@ namespace Cloner
             _noiseOffset = Vector3.one * _randomSeed;
             _pulseTimer = _pulseFrequency * _randomSeed;
 
-            // Clone the given material before using.
-            _material = new Material(_material);
-            _material.name += " (cloned)";
-            _materialCloned = true;
+            // Clone the given material to avoid issue 914787.
+            // https://goo.gl/UM22t5
+            _tempMaterial = new Material(_material);
         }
 
         void OnDestroy()
@@ -217,11 +216,15 @@ namespace Cloner
             if (_normalBuffer != null) _normalBuffer.Release();
             if (_tangentBuffer != null) _tangentBuffer.Release();
             if (_transformBuffer != null) _transformBuffer.Release();
-            if (_materialCloned) Destroy(_material);
+            if (_tempMaterial) Destroy(_tempMaterial);
         }
 
-        void Update()
+        void LateUpdate()
         {
+            // Apply changes on the material to the clone.
+            // FIXME: remove this when issue 914787 gets fixed.
+            _tempMaterial.CopyPropertiesFromMaterial(_material);
+
             // Invoke the update compute kernel.
             var kernel = _compute.FindKernel("ClonerUpdate");
 
@@ -247,19 +250,19 @@ namespace Cloner
             _compute.Dispatch(kernel, ThreadGroupCount, 1, 1);
 
             // Draw the template mesh with instancing.
-            _material.SetVector("_GradientA", _gradient.coeffsA);
-            _material.SetVector("_GradientB", _gradient.coeffsB);
-            _material.SetVector("_GradientC", _gradient.coeffsC2);
-            _material.SetVector("_GradientD", _gradient.coeffsD2);
+            _props.SetVector("_GradientA", _gradient.coeffsA);
+            _props.SetVector("_GradientB", _gradient.coeffsB);
+            _props.SetVector("_GradientC", _gradient.coeffsC2);
+            _props.SetVector("_GradientD", _gradient.coeffsD2);
 
-            _material.SetMatrix("_LocalToWorld", transform.localToWorldMatrix);
-            _material.SetMatrix("_WorldToLocal", transform.worldToLocalMatrix);
+            _props.SetMatrix("_LocalToWorld", transform.localToWorldMatrix);
+            _props.SetMatrix("_WorldToLocal", transform.worldToLocalMatrix);
 
-            _material.SetBuffer("_TransformBuffer", _transformBuffer);
-            _material.SetInt("_InstanceCount", InstanceCount);
+            _props.SetBuffer("_TransformBuffer", _transformBuffer);
+            _props.SetFloat("_InstanceCount", InstanceCount);
 
             Graphics.DrawMeshInstancedIndirect(
-                _template, 0, _material, TransformedBounds,
+                _template, 0, _tempMaterial, TransformedBounds,
                 _drawArgsBuffer, 0, _props
             );
 
