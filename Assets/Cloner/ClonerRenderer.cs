@@ -2,12 +2,13 @@
 // https://github.com/keijiro/Cloner
 
 using UnityEngine;
+using UnityEngine.Timeline;
 using Klak.Chromatics;
 
 namespace Cloner
 {
     [ExecuteInEditMode]
-    public sealed class ClonerRenderer : MonoBehaviour
+    public sealed class ClonerRenderer : MonoBehaviour, ITimeControl
     {
         #region Point source properties
 
@@ -149,8 +150,8 @@ namespace Cloner
         Material _tempMaterial;
         MaterialPropertyBlock _props;
 
-        Vector3 _noiseOffset;
-        float _pulseTimer;
+        float _time;
+        bool _timeControlled;
 
         Bounds TransformedBounds {
             get {
@@ -225,13 +226,6 @@ namespace Cloner
             }
         }
 
-        void Start()
-        {
-            // Initial noise offset/pulse timer = random seed
-            _noiseOffset = Vector3.one * _randomSeed;
-            _pulseTimer = _pulseFrequency * _randomSeed;
-        }
-
         void Update()
         {
             if (_pointSource == null || _template == null ||
@@ -265,6 +259,10 @@ namespace Cloner
             else
                 _tempMaterial.CopyPropertiesFromMaterial(_material);
 
+            // Calculate the time-based parameters.
+            var noiseOffset = Vector3.one * _randomSeed + _noiseMotion * _time;
+            var pulseTime = _pulseFrequency * (_time + _randomSeed);
+
             // Invoke the update compute kernel.
             var kernel = _compute.FindKernel("ClonerUpdate");
 
@@ -276,11 +274,11 @@ namespace Cloner
             _compute.SetFloat("ScalePulse", _scaleByPulse);
 
             _compute.SetFloat("NoiseFrequency", _noiseFrequency);
-            _compute.SetVector("NoiseOffset", _noiseOffset);
+            _compute.SetVector("NoiseOffset", noiseOffset);
             _compute.SetFloat("NormalModifier", _normalModifier);
 
             _compute.SetFloat("PulseProbability", _pulseProbability);
-            _compute.SetFloat("PulseTime", _pulseTimer);
+            _compute.SetFloat("PulseTime", pulseTime);
 
             _compute.SetBuffer(kernel, "PositionBuffer", _positionBuffer);
             _compute.SetBuffer(kernel, "NormalBuffer", _normalBuffer);
@@ -308,9 +306,9 @@ namespace Cloner
                 _drawArgsBuffer, 0, _props
             );
 
-            // Update the internal state.
-            _noiseOffset += _noiseMotion * Time.deltaTime;
-            _pulseTimer += _pulseFrequency * Time.deltaTime;
+            // Advance the time.
+            if (!_timeControlled && Application.isPlaying)
+                _time += Time.deltaTime;
         }
 
         void OnDrawGizmos()
@@ -325,6 +323,25 @@ namespace Cloner
             Gizmos.color = Color.yellow;
             Gizmos.matrix = transform.localToWorldMatrix;
             Gizmos.DrawWireCube(_bounds.center, _bounds.size);
+        }
+
+        #endregion
+
+        #region ITimeControl functions
+
+        public void OnControlTimeStart()
+        {
+            _timeControlled = true;
+        }
+
+        public void OnControlTimeStop()
+        {
+            _timeControlled = false;
+        }
+
+        public void SetTime(double time)
+        {
+            _time = (float)time;
         }
 
         #endregion
