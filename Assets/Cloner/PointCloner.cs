@@ -187,13 +187,15 @@ namespace Cloner
 
         #region Compute configurations
 
-        const int kThreadCount = 64;
+        const int kThreadCount = 128;
+
+        int InstanceCount { get { return _pointSource.pointCount; } }
 
         int ThreadGroupCount {
-            get { return Mathf.Max(1, _pointSource.pointCount / kThreadCount); }
+            get { return (InstanceCount + kThreadCount - 1) / kThreadCount; }
         }
 
-        int InstanceCount {
+        int TotalThreadCount {
             get { return ThreadGroupCount * kThreadCount; }
         }
 
@@ -247,7 +249,7 @@ namespace Cloner
                 _positionBuffer = _pointSource.CreatePositionBuffer();
                 _normalBuffer = _pointSource.CreateNormalBuffer();
                 _tangentBuffer = _pointSource.CreateTangentBuffer();
-                _transformBuffer = new ComputeBuffer(InstanceCount * 3, 4 * 4);
+                _transformBuffer = new ComputeBuffer(TotalThreadCount * 3, 4 * 4);
             }
 
             // Use a cloned material to avoid issue 914787 ("Only one shadow is
@@ -267,7 +269,7 @@ namespace Cloner
             var kernel = _compute.FindKernel("ClonerUpdate");
 
             _compute.SetInt("InstanceCount", InstanceCount);
-            _compute.SetFloat("RcpInstanceCount", 1.0f / InstanceCount);
+            _compute.SetInt("BufferStride", TotalThreadCount);
 
             _compute.SetFloat("BaseScale", _templateScale);
             _compute.SetFloat("ScaleNoise", _scaleByNoise);
@@ -299,7 +301,7 @@ namespace Cloner
             _props.SetMatrix("_WorldToLocal", transform.worldToLocalMatrix);
 
             _props.SetBuffer("_TransformBuffer", _transformBuffer);
-            _props.SetFloat("_InstanceCount", InstanceCount);
+            _props.SetFloat("_BufferStride", InstanceCount);
 
             Graphics.DrawMeshInstancedIndirect(
                 _template, 0, _tempMaterial, TransformedBounds,

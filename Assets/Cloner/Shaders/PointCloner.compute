@@ -13,7 +13,7 @@ RWStructuredBuffer<float4> TransformBuffer;
 CBUFFER_START(Params)
 
     uint InstanceCount;
-    float RcpInstanceCount;
+    uint BufferStride;
 
     float BaseScale;
     float ScaleNoise;
@@ -28,9 +28,11 @@ CBUFFER_START(Params)
 
 CBUFFER_END
 
-[numthreads(64, 1, 1)]
+[numthreads(128, 1, 1)]
 void ClonerUpdate(uint id : SV_DispatchThreadID)
 {
+    if (id >= InstanceCount) return;
+
     float3 p = PositionBuffer[id].xyz;
     float3 n = NormalBuffer[id].xyz;
     float4 t = TangentBuffer[id];
@@ -52,7 +54,7 @@ void ClonerUpdate(uint id : SV_DispatchThreadID)
     float uvoffs = uoffs + floor(voffs * 1000);
 
     // Pulse noise.
-    float ptime = PulseTime + id * RcpInstanceCount;
+    float ptime = PulseTime + float(id) / InstanceCount;
     uint seed = id * 131071 + (uint)ptime;
     float pulse0 = Random(seed + 0) < PulseProbability;
     float pulse1 = Random(seed + 1) < PulseProbability;
@@ -61,7 +63,7 @@ void ClonerUpdate(uint id : SV_DispatchThreadID)
     // Scale factor.
     float scale = max(0, BaseScale + sn1.w * ScaleNoise) + pulse * ScalePulse;
 
-    TransformBuffer[id + InstanceCount * 0] = float4(p, scale);
-    TransformBuffer[id + InstanceCount * 1] = float4(nx, uvoffs);
-    TransformBuffer[id + InstanceCount * 2] = float4(ny, sn2.w);
+    TransformBuffer[id + BufferStride * 0] = float4(p, scale);
+    TransformBuffer[id + BufferStride * 1] = float4(nx, uvoffs);
+    TransformBuffer[id + BufferStride * 2] = float4(ny, sn2.w);
 }

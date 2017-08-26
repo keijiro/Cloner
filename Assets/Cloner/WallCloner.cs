@@ -191,11 +191,10 @@ namespace Cloner
 
         const int kThreadCount = 128;
 
+        int InstanceCount { get { return _columnCount * _rowCount; } }
+
         int ThreadGroupCount {
-            get {
-                var total = _columnCount * _rowCount;
-                return (total + kThreadCount - 1) / kThreadCount;
-            }
+            get { return (InstanceCount + kThreadCount - 1) / kThreadCount; }
         }
 
         int TotalThreadCount {
@@ -247,9 +246,7 @@ namespace Cloner
                 );
 
                 _drawArgsBuffer.SetData(new uint[5] {
-                    _template.GetIndexCount(0),
-                    (uint)(_columnCount * _rowCount),
-                    0, 0, 0
+                    _template.GetIndexCount(0), (uint)InstanceCount, 0, 0, 0
                 });
 
                 // Allocate the transform buffer.
@@ -272,7 +269,9 @@ namespace Cloner
             // Invoke the update compute kernel.
             var kernel = _compute.FindKernel("ClonerUpdate");
 
-            _compute.SetInt("TotalThreadCount", TotalThreadCount);
+            _compute.SetInt("InstanceCount", InstanceCount);
+            _compute.SetInt("BufferStride", TotalThreadCount);
+
             _compute.SetInt("ColumnCount", _columnCount);
             _compute.SetInt("RowCount", _rowCount);
             _compute.SetVector("Extent", _extent);
@@ -304,7 +303,7 @@ namespace Cloner
             _props.SetMatrix("_WorldToLocal", transform.worldToLocalMatrix);
 
             _props.SetBuffer("_TransformBuffer", _transformBuffer);
-            _props.SetFloat("_InstanceCount", TotalThreadCount);
+            _props.SetFloat("_BufferStride", TotalThreadCount);
 
             Graphics.DrawMeshInstancedIndirect(
                 _template, 0, _tempMaterial, TransformedBounds,
