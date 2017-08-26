@@ -65,9 +65,15 @@ namespace Cloner
         {
             serializedObject.Update();
 
-            EditorGUILayout.PropertyField(_pointSource);
+            EditorGUI.BeginChangeCheck();
 
+            EditorGUILayout.PropertyField(_pointSource);
             EditorGUILayout.PropertyField(_template);
+
+            if (EditorGUI.EndChangeCheck())
+                foreach (MonoBehaviour r in targets)
+                    r.SendMessage("ReallocateBuffer");
+
             EditorGUI.indentLevel++;
             EditorGUILayout.PropertyField(_templateScale, Labels.scale);
             EditorGUILayout.PropertyField(_scaleByNoise);

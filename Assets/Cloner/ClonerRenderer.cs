@@ -6,6 +6,7 @@ using Klak.Chromatics;
 
 namespace Cloner
 {
+    [ExecuteInEditMode]
     public sealed class ClonerRenderer : MonoBehaviour
     {
         #region Point source properties
@@ -14,6 +15,7 @@ namespace Cloner
 
         public PointCloud pointSource {
             get { return _pointSource; }
+            set { _pointSource = value; ReallocateBuffer(); }
         }
 
         #endregion
@@ -24,6 +26,7 @@ namespace Cloner
 
         public Mesh template {
             get { return _template; }
+            set { _template = value; ReallocateBuffer(); }
         }
 
         [SerializeField] float _templateScale = 0.05f;
@@ -98,6 +101,7 @@ namespace Cloner
 
         public Material material {
             get { return _material; }
+            set { _material = value; }
         }
 
         [SerializeField] CosineGradient _gradient;
@@ -123,6 +127,7 @@ namespace Cloner
 
         public int randomSeed {
             get { return _randomSeed; }
+            set { _randomSeed = value; }
         }
 
         #endregion
@@ -133,15 +138,17 @@ namespace Cloner
 
         #endregion
 
-        #region Private fields
+        #region Private members
 
         ComputeBuffer _drawArgsBuffer;
         ComputeBuffer _positionBuffer;
         ComputeBuffer _normalBuffer;
         ComputeBuffer _tangentBuffer;
         ComputeBuffer _transformBuffer;
+
         Material _tempMaterial;
         MaterialPropertyBlock _props;
+
         Vector3 _noiseOffset;
         float _pulseTimer;
 
@@ -151,6 +158,27 @@ namespace Cloner
                     transform.TransformPoint(_bounds.center),
                     Vector3.Scale(transform.lossyScale, _bounds.size)
                 );
+            }
+        }
+
+        void ReallocateBuffer()
+        {
+            if (_drawArgsBuffer != null)
+            {
+                _drawArgsBuffer.Release();
+                _drawArgsBuffer = null;
+
+                _positionBuffer.Release();
+                _positionBuffer = null;
+
+                _normalBuffer.Release();
+                _normalBuffer = null;
+
+                _tangentBuffer.Release();
+                _tangentBuffer = null;
+
+                _transformBuffer.Release();
+                _transformBuffer = null;
             }
         }
 
@@ -179,51 +207,63 @@ namespace Cloner
             _bounds.size = Vector3.Max(Vector3.zero, _bounds.size);
         }
 
-        void Start()
+        void OnDisable()
         {
-            // Initialize the indirect draw args buffer.
-            _drawArgsBuffer = new ComputeBuffer(
-                1, 5 * sizeof(uint), ComputeBufferType.IndirectArguments
-            );
-
-            _drawArgsBuffer.SetData(new uint[5] {
-                _template.GetIndexCount(0), (uint)InstanceCount, 0, 0, 0
-            });
-
-            // Allocate compute buffers.
-            _positionBuffer = _pointSource.CreatePositionBuffer();
-            _normalBuffer = _pointSource.CreateNormalBuffer();
-            _tangentBuffer = _pointSource.CreateTangentBuffer();
-            _transformBuffer = new ComputeBuffer(InstanceCount * 3, 4 * 4);
-
-            // This property block is used only for avoiding an instancing bug.
-            _props = new MaterialPropertyBlock();
-            _props.SetFloat("_UniqueID", Random.value);
-
-            // Initial noise offset/pulse timer = random seed
-            _noiseOffset = Vector3.one * _randomSeed;
-            _pulseTimer = _pulseFrequency * _randomSeed;
-
-            // Clone the given material to avoid issue 914787.
-            // https://goo.gl/UM22t5
-            _tempMaterial = new Material(_material);
+            // Release the compute buffers here not in OnDestroy because that's
+            // too late to avoid compute buffer leakage warnings.
+            ReallocateBuffer();
         }
 
         void OnDestroy()
         {
-            if (_drawArgsBuffer != null) _drawArgsBuffer.Release();
-            if (_positionBuffer != null) _positionBuffer.Release();
-            if (_normalBuffer != null) _normalBuffer.Release();
-            if (_tangentBuffer != null) _tangentBuffer.Release();
-            if (_transformBuffer != null) _transformBuffer.Release();
-            if (_tempMaterial) Destroy(_tempMaterial);
+            if (_tempMaterial)
+            {
+                if (Application.isPlaying)
+                    Destroy(_tempMaterial);
+                else
+                    DestroyImmediate(_tempMaterial);
+            }
         }
 
-        void LateUpdate()
+        void Start()
         {
-            // Apply changes on the material to the clone.
+            // Initial noise offset/pulse timer = random seed
+            _noiseOffset = Vector3.one * _randomSeed;
+            _pulseTimer = _pulseFrequency * _randomSeed;
+        }
+
+        void Update()
+        {
+            if (_pointSource == null || _template == null ||
+                _material == null || _gradient == null) return;
+
+            // Lazy initialization.
+            if (_drawArgsBuffer == null)
+            {
+                // Initialize the indirect draw args buffer.
+                _drawArgsBuffer = new ComputeBuffer(
+                    1, 5 * sizeof(uint), ComputeBufferType.IndirectArguments
+                );
+
+                _drawArgsBuffer.SetData(new uint[5] {
+                    _template.GetIndexCount(0), (uint)InstanceCount, 0, 0, 0
+                });
+
+                // Allocate compute buffers.
+                _positionBuffer = _pointSource.CreatePositionBuffer();
+                _normalBuffer = _pointSource.CreateNormalBuffer();
+                _tangentBuffer = _pointSource.CreateTangentBuffer();
+                _transformBuffer = new ComputeBuffer(InstanceCount * 3, 4 * 4);
+            }
+
+            // Use a cloned material to avoid issue 914787 ("Only one shadow is
+            // cast when using Graphics.DrawMeshInstancedIndirect more than one
+            // time per frame").
             // FIXME: remove this when issue 914787 gets fixed.
-            _tempMaterial.CopyPropertiesFromMaterial(_material);
+            if (_tempMaterial == null)
+                _tempMaterial = new Material(_material);
+            else
+                _tempMaterial.CopyPropertiesFromMaterial(_material);
 
             // Invoke the update compute kernel.
             var kernel = _compute.FindKernel("ClonerUpdate");
@@ -250,6 +290,8 @@ namespace Cloner
             _compute.Dispatch(kernel, ThreadGroupCount, 1, 1);
 
             // Draw the template mesh with instancing.
+            if (_props == null) _props = new MaterialPropertyBlock();
+
             _props.SetVector("_GradientA", _gradient.coeffsA);
             _props.SetVector("_GradientB", _gradient.coeffsB);
             _props.SetVector("_GradientC", _gradient.coeffsC2);
