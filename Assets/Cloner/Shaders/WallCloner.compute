@@ -1,0 +1,72 @@
+// Cloner - An example of use of procedural instancing.
+// https://github.com/keijiro/Cloner
+
+#pragma kernel ClonerUpdate
+
+#include "Common.hlsl"
+
+RWStructuredBuffer<float4> TransformBuffer;
+
+CBUFFER_START(Params)
+
+    uint TotalThreadCount;
+    uint ColumnCount;
+    uint RowCount;
+    float2 Extent;
+
+    float BaseScale;
+    float ScaleNoise;
+    float ScalePulse;
+
+    float NoiseFrequency;
+    float3 NoiseOffset;
+    float NormalModifier;
+
+    float PulseProbability;
+    float PulseTime;
+
+CBUFFER_END
+
+[numthreads(128, 1, 1)]
+void ClonerUpdate(uint id : SV_DispatchThreadID)
+{
+    uint row = id / ColumnCount;
+    uint col = id - row * ColumnCount;
+
+    float px = (2.0 * col / ColumnCount - 1) * Extent.x;
+    float py = (2.0 * row / RowCount    - 1) * Extent.y;
+
+    float3 p = float3(px, py, 0);
+    float3 n = float3(0, 1, 0);
+    float4 t = float4(1, 0, 0, 1);
+
+    // Divergence free noise field.
+    float4 sn1 = snoise(98.4898 + p * NoiseFrequency + NoiseOffset);
+    float4 sn2 = snoise( 1.2278 - p * NoiseFrequency + NoiseOffset);
+    float3 dfn = cross(sn1.xyz, sn2.xyz);
+
+    // Normal modification.
+    float3 nz = normalize(n + dfn * NormalModifier);
+    float3 ny = normalize(cross(nz, t.xyz) * t.w);
+    float3 nx = cross(nz, ny);
+
+    // UV offsetting.
+    uint hash = Hash(id);
+    float uoffs = float(hash & 0xfff000) / 0x1000000;
+    float voffs = float(hash & 0x000fff) / 0x0001000;
+    float uvoffs = uoffs + floor(voffs * 1000);
+
+    // Pulse noise.
+    float ptime = PulseTime + float(id) / TotalThreadCount;
+    uint seed = id * 131071 + (uint)ptime;
+    float pulse0 = Random(seed + 0) < PulseProbability;
+    float pulse1 = Random(seed + 1) < PulseProbability;
+    float pulse = lerp(pulse0, pulse1, smoothstep(0, 1, frac(ptime)));
+
+    // Scale factor.
+    float scale = max(0, BaseScale + sn1.w * ScaleNoise) + pulse * ScalePulse;
+
+    TransformBuffer[id + TotalThreadCount * 0] = float4(p, scale);
+    TransformBuffer[id + TotalThreadCount * 1] = float4(nx, uvoffs);
+    TransformBuffer[id + TotalThreadCount * 2] = float4(ny, sn2.w);
+}

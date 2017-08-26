@@ -3,8 +3,7 @@
 
 #pragma kernel ClonerUpdate
 
-#include "UnityCG.cginc"
-#include "SimplexNoise3D.cginc"
+#include "Common.hlsl"
 
 StructuredBuffer<float4> PositionBuffer;
 StructuredBuffer<float4> NormalBuffer;
@@ -28,23 +27,6 @@ CBUFFER_START(Params)
     float PulseTime;
 
 CBUFFER_END
-
-// Hash function from H. Schechter & R. Bridson, goo.gl/RXiKaH
-float Hash(uint s)
-{
-    s ^= 2747636419u;
-    s *= 2654435769u;
-    s ^= s >> 16;
-    s *= 2654435769u;
-    s ^= s >> 16;
-    s *= 2654435769u;
-    return s;
-}
-
-float Random(uint seed)
-{
-    return float(Hash(seed)) / 4294967295.0; // 2^32-1
-}
 
 [numthreads(64, 1, 1)]
 void ClonerUpdate(uint id : SV_DispatchThreadID)
