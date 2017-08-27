@@ -112,7 +112,7 @@ namespace Cloner
 
         #region Pulse noise properties
 
-        [SerializeField, Range(0, 0.1f)] float _pulseProbability = 0;
+        [SerializeField, Range(0, 0.2f)] float _pulseProbability = 0;
 
         public float pulseProbability {
             get { return _pulseProbability; }
