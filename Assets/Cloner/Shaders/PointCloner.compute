@@ -4,6 +4,7 @@
 #pragma kernel ClonerUpdate
 
 #include "Common.hlsl"
+#include "SimplexNoise3D.hlsl"
 
 StructuredBuffer<float4> PositionBuffer;
 StructuredBuffer<float4> NormalBuffer;
@@ -38,8 +39,8 @@ void ClonerUpdate(uint id : SV_DispatchThreadID)
     float4 t = TangentBuffer[id];
 
     // Divergence free noise field.
-    float4 sn1 = snoise(98.4898 + p * NoiseFrequency + NoiseOffset);
-    float4 sn2 = snoise( 1.2278 - p * NoiseFrequency + NoiseOffset);
+    float4 sn1 = snoise_grad(98.4898 + p * NoiseFrequency + NoiseOffset);
+    float4 sn2 = snoise_grad( 1.2278 - p * NoiseFrequency + NoiseOffset);
     float3 dfn = cross(sn1.xyz, sn2.xyz);
 
     // Normal modification.

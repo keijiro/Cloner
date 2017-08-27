@@ -1,5 +1,4 @@
 #include "UnityCG.cginc"
-#include "SimplexNoise3D.cginc"
 
 // Hash function from H. Schechter & R. Bridson, goo.gl/RXiKaH
 uint Hash(uint s)

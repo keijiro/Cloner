@@ -4,6 +4,7 @@
 #pragma kernel ClonerUpdate
 
 #include "Common.hlsl"
+#include "SimplexNoise2D.hlsl"
 
 RWStructuredBuffer<float4> TransformBuffer;
 
@@ -15,13 +16,17 @@ CBUFFER_START(Params)
     uint ColumnCount;
     uint RowCount;
     float2 Extent;
+    float2 PositionOffset;
+
+    int2 ScrollStep;
 
     float BaseScale;
     float ScaleNoise;
     float ScalePulse;
 
     float NoiseFrequency;
-    float3 NoiseOffset;
+    float2 NoiseOffset;
+    float PositionModifier;
     float NormalModifier;
 
     float PulseProbability;
@@ -34,24 +39,25 @@ void ClonerUpdate(uint id : SV_DispatchThreadID)
 {
     if (id >= InstanceCount) return;
 
+    // Unmodified position
     uint row = id / ColumnCount;
     uint col = id - row * ColumnCount;
 
-    float px = (2.0 * col / ColumnCount - 1) * Extent.x;
-    float py = (2.0 * row / RowCount    - 1) * Extent.y;
+    float2 p0 = float2(float(col) / ColumnCount, float(row) / RowCount);
+    p0 = (p0 * 2 - 1) * Extent;
 
-    float3 p = float3(px, py, 0);
-    float3 n = float3(0, 1, 0);
-    float4 t = float4(1, 0, 0, 1);
+    // Dual noise field
+    float2 np = p0 * NoiseFrequency;
+    float3 sn1 = snoise_grad(98.4898 + np + NoiseOffset);
+    float3 sn2 = snoise_grad( 1.2278 + np + NoiseOffset);
 
-    // Divergence free noise field.
-    float4 sn1 = snoise(98.4898 + p * NoiseFrequency + NoiseOffset);
-    float4 sn2 = snoise( 1.2278 - p * NoiseFrequency + NoiseOffset);
-    float3 dfn = cross(sn1.xyz, sn2.xyz);
+    // Position modification.
+    float3 p = float3(p0 - PositionOffset, 0);
+    p += sn1 * float3(0.2, 0.2, 1) * PositionModifier;
 
     // Normal modification.
-    float3 nz = normalize(n + dfn * NormalModifier);
-    float3 ny = normalize(cross(nz, t.xyz) * t.w);
+    float3 nz = normalize(float3(sn2.xy * NormalModifier, 1));
+    float3 ny = normalize(cross(nz, float3(1, 0, 0)));
     float3 nx = cross(nz, ny);
 
     // UV offsetting.
@@ -61,16 +67,17 @@ void ClonerUpdate(uint id : SV_DispatchThreadID)
     float uvoffs = uoffs + floor(voffs * 1000);
 
     // Pulse noise.
-    float ptime = PulseTime + float(id) / InstanceCount;
-    uint seed = id * 131071 + (uint)ptime;
+    uint seed0 = (col + ScrollStep.x) * 131071 + (row + ScrollStep.y) * 8294;
+    float ptime = PulseTime + Random(seed0);
+    uint seed = (col + ScrollStep.x) * 131071 + (row + ScrollStep.y) * 8294 + (uint)ptime;
     float pulse0 = Random(seed + 0) < PulseProbability;
     float pulse1 = Random(seed + 1) < PulseProbability;
     float pulse = lerp(pulse0, pulse1, smoothstep(0, 1, frac(ptime)));
 
     // Scale factor.
-    float scale = max(0, BaseScale + sn1.w * ScaleNoise) + pulse * ScalePulse;
+    float scale = max(0, BaseScale + sn1.z * ScaleNoise) + pulse * ScalePulse;
 
     TransformBuffer[id + BufferStride * 0] = float4(p, scale);
     TransformBuffer[id + BufferStride * 1] = float4(nx, uvoffs);
-    TransformBuffer[id + BufferStride * 2] = float4(ny, sn2.w);
+    TransformBuffer[id + BufferStride * 2] = float4(ny, sn2.z);
 }

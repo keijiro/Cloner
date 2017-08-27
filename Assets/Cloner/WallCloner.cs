@@ -33,6 +33,13 @@ namespace Cloner
             set { _extent = value; }
         }
 
+        [SerializeField] Vector2 _scroll = Vector2.up;
+
+        public Vector2 scroll {
+            get { return _scroll; }
+            set { _scroll = value; }
+        }
+
         #endregion
 
         #region Template properties
@@ -76,11 +83,18 @@ namespace Cloner
             set { _noiseFrequency = value; }
         }
 
-        [SerializeField] Vector3 _noiseMotion = Vector3.up * 0.25f;
+        [SerializeField] Vector2 _noiseMotion = Vector2.up * 0.25f;
 
-        public Vector3 noiseMotion {
+        public Vector2 noiseMotion {
             get { return _noiseMotion; }
             set { _noiseMotion = value; }
+        }
+
+        [SerializeField, Range(0, 1)] float _positionModifier = 0.125f;
+
+        public float positionModifier {
+            get { return _positionModifier; }
+            set { _positionModifier = value; }
         }
 
         [SerializeField, Range(0, 1)] float _normalModifier = 0.125f;
@@ -163,6 +177,8 @@ namespace Cloner
 
         float _time;
         bool _timeControlled;
+
+        int[] _tempInt2 = new int [2]; // reused for avoid GC mem allocation
 
         Bounds TransformedBounds {
             get {
@@ -263,12 +279,23 @@ namespace Cloner
                 _tempMaterial.CopyPropertiesFromMaterial(_material);
 
             // Calculate the time-based parameters.
-            var noiseOffset = Vector3.one * _randomSeed + _noiseMotion * _time;
+            var noiseOffset = Vector2.one * _randomSeed + _noiseMotion * _time;
             var pulseTime = _pulseFrequency * (_time + _randomSeed);
+
+            // Scroll parameters.
+            var scroll = _scroll * _time;
+            var xInterval = _extent.x * 2 / _columnCount;
+            var yInterval = _extent.y * 2 / _rowCount;
+            var xStep = Mathf.FloorToInt(scroll.x / xInterval);
+            var yStep = Mathf.FloorToInt(scroll.y / yInterval);
+
+            noiseOffset += new Vector2(
+                _noiseFrequency * (xStep * xInterval),
+                _noiseFrequency * (yStep * yInterval)
+            );
 
             // Invoke the update compute kernel.
             var kernel = _compute.FindKernel("ClonerUpdate");
-
             _compute.SetInt("InstanceCount", InstanceCount);
             _compute.SetInt("BufferStride", TotalThreadCount);
 
@@ -276,12 +303,21 @@ namespace Cloner
             _compute.SetInt("RowCount", _rowCount);
             _compute.SetVector("Extent", _extent);
 
+            _compute.SetVector("PositionOffset", new Vector4(
+                scroll.x - xStep * xInterval,
+                scroll.y - yStep * yInterval
+            ));
+
+            _tempInt2[0] = xStep; _tempInt2[1] = yStep;
+            _compute.SetInts("ScrollStep", _tempInt2);
+
             _compute.SetFloat("BaseScale", _templateScale);
             _compute.SetFloat("ScaleNoise", _scaleByNoise);
             _compute.SetFloat("ScalePulse", _scaleByPulse);
 
             _compute.SetFloat("NoiseFrequency", _noiseFrequency);
             _compute.SetVector("NoiseOffset", noiseOffset);
+            _compute.SetFloat("PositionModifier", _positionModifier * Mathf.Min(xInterval, yInterval));
             _compute.SetFloat("NormalModifier", _normalModifier);
 
             _compute.SetFloat("PulseProbability", _pulseProbability);
