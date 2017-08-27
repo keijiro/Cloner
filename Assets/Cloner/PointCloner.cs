@@ -305,7 +305,7 @@ namespace Cloner
             _props.SetMatrix("_WorldToLocal", transform.worldToLocalMatrix);
 
             _props.SetBuffer("_TransformBuffer", _transformBuffer);
-            _props.SetFloat("_BufferStride", InstanceCount);
+            _props.SetFloat("_BufferStride", TotalThreadCount);
 
             Graphics.DrawMeshInstancedIndirect(
                 _template, 0, _tempMaterial, TransformedBounds,
