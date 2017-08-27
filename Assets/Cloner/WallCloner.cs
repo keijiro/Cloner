@@ -305,6 +305,7 @@ namespace Cloner
             _compute.SetFloat("PulseTime", pulseTime);
 
             _compute.SetBuffer(kernel, "TransformBuffer", _transformBuffer);
+
             _compute.Dispatch(kernel, ThreadGroupCount, 1, 1);
 
             // Draw the template mesh with instancing.

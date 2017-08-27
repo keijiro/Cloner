@@ -10,7 +10,7 @@ namespace Cloner
     [ExecuteInEditMode]
     public sealed class PointCloner : MonoBehaviour, ITimeControl
     {
-        #region Point source properties
+        #region Basic instancing properties
 
         [SerializeField] PointCloud _pointSource;
 
@@ -18,10 +18,6 @@ namespace Cloner
             get { return _pointSource; }
             set { _pointSource = value; ReallocateBuffer(); }
         }
-
-        #endregion
-
-        #region Template properties
 
         [SerializeField] Mesh _template;
 
@@ -35,6 +31,24 @@ namespace Cloner
         public float templateScale {
             get { return _templateScale; }
             set { _templateScale = value; }
+        }
+
+        #endregion
+
+        #region Modifier properties
+
+        [SerializeField] float _displacementByNoise = 0.125f;
+
+        public float displacementByNoise {
+            get { return _displacementByNoise; }
+            set { _displacementByNoise = value; }
+        }
+
+        [SerializeField] float _rotationByNoise = 0.125f;
+
+        public float rotationByNoise {
+            get { return _rotationByNoise; }
+            set { _rotationByNoise = value; }
         }
 
         [SerializeField] float _scaleByNoise = 0.1f;
@@ -62,18 +76,11 @@ namespace Cloner
             set { _noiseFrequency = value; }
         }
 
-        [SerializeField] Vector3 _noiseMotion = Vector3.up * 0.25f;
+        [SerializeField] Vector2 _noiseSpeed = Vector2.up * 0.25f;
 
-        public Vector3 noiseMotion {
-            get { return _noiseMotion; }
-            set { _noiseMotion = value; }
-        }
-
-        [SerializeField, Range(0, 1)] float _normalModifier = 0.125f;
-
-        public float normalModifier {
-            get { return _normalModifier; }
-            set { _normalModifier = value; }
+        public Vector2 noiseSpeed {
+            get { return _noiseSpeed; }
+            set { _noiseSpeed = value; }
         }
 
         #endregion
@@ -87,16 +94,16 @@ namespace Cloner
             set { _pulseProbability = value; }
         }
 
-        [SerializeField] float _pulseFrequency = 2;
+        [SerializeField] float _pulseSpeed = 2;
 
-        public float pulseFrequency {
-            get { return _pulseFrequency; }
-            set { _pulseFrequency = value; }
+        public float pulseSpeed {
+            get { return _pulseSpeed; }
+            set { _pulseSpeed = value; }
         }
 
         #endregion
 
-        #region Material properties
+        #region Renderer properties
 
         [SerializeField] Material _material;
 
@@ -111,10 +118,6 @@ namespace Cloner
             get { return _gradient; }
             set { _gradient = value; }
         }
-
-        #endregion
-
-        #region Misc properties
 
         [SerializeField] Bounds _bounds =
             new Bounds(Vector3.zero, Vector3.one * 10);
@@ -206,7 +209,7 @@ namespace Cloner
         void OnValidate()
         {
             _noiseFrequency = Mathf.Max(0, _noiseFrequency);
-            _pulseFrequency = Mathf.Max(0, _pulseFrequency);
+            _pulseSpeed = Mathf.Max(0, _pulseSpeed);
             _bounds.size = Vector3.Max(Vector3.zero, _bounds.size);
         }
 
@@ -262,8 +265,8 @@ namespace Cloner
                 _tempMaterial.CopyPropertiesFromMaterial(_material);
 
             // Calculate the time-based parameters.
-            var noiseOffset = Vector3.one * _randomSeed + _noiseMotion * _time;
-            var pulseTime = _pulseFrequency * (_time + _randomSeed);
+            var noiseOffset = Vector2.one * _randomSeed + _noiseSpeed * _time;
+            var pulseTime = _pulseSpeed * (_time + _randomSeed);
 
             // Invoke the update compute kernel.
             var kernel = _compute.FindKernel("ClonerUpdate");
@@ -271,14 +274,15 @@ namespace Cloner
             _compute.SetInt("InstanceCount", InstanceCount);
             _compute.SetInt("BufferStride", TotalThreadCount);
 
+            _compute.SetFloat("PositionNoise", _displacementByNoise);
+            _compute.SetFloat("NormalNoise", _rotationByNoise);
+
             _compute.SetFloat("BaseScale", _templateScale);
             _compute.SetFloat("ScaleNoise", _scaleByNoise);
             _compute.SetFloat("ScalePulse", _scaleByPulse);
 
             _compute.SetFloat("NoiseFrequency", _noiseFrequency);
             _compute.SetVector("NoiseOffset", noiseOffset);
-            _compute.SetFloat("NormalModifier", _normalModifier);
-
             _compute.SetFloat("PulseProbability", _pulseProbability);
             _compute.SetFloat("PulseTime", pulseTime);
 

@@ -51,12 +51,8 @@ void ClonerUpdate(uint id : SV_DispatchThreadID)
     float3 sn1 = snoise_grad(98.4898 + p_w * NoiseFrequency + NoiseOffset);
     float3 sn2 = snoise_grad( 1.2278 - p_w * NoiseFrequency + NoiseOffset);
 
-    // Position modification
-    float3 p = float3(p_w + Scroll, 0);
-    p += sn1 * float3(0.2, 0.2, 1) * PositionNoise;
-
     // Normal modification
-    float3 nz = normalize(float3(sn2.xy * NormalNoise, 1));
+    float3 nz = normalize(float3(sn1.xy * NormalNoise, 1));
     float3 ny = normalize(cross(nz, float3(1, 0, 0)));
     float3 nx = cross(nz, ny);
 
@@ -74,9 +70,14 @@ void ClonerUpdate(uint id : SV_DispatchThreadID)
     float pulse = lerp(pulse0, pulse1, smoothstep(0, 1, frac(ptime)));
 
     // Scale factor
-    float scale = max(0, BaseScale + sn1.z * ScaleNoise) + pulse * ScalePulse;
+    float s_n = max(0, 1 + sn1.z * ScaleNoise) * BaseScale;
+    float s_p = pulse * ScalePulse * BaseScale;
 
-    TransformBuffer[id + BufferStride * 0] = float4(p, scale);
+    // Position modification
+    float3 disp = (nx * sn2.x + ny * sn2.y) * 0.2 + nz * sn2.z;
+    float3 p = float3(p_w + Scroll, 0) + disp * s_n * PositionNoise;
+
+    TransformBuffer[id + BufferStride * 0] = float4(p, s_n + s_p);
     TransformBuffer[id + BufferStride * 1] = float4(nx, uvoffs);
     TransformBuffer[id + BufferStride * 2] = float4(ny, sn2.z);
 }

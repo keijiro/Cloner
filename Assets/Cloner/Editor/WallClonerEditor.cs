@@ -61,7 +61,6 @@ namespace Cloner
 
             _noiseFrequency = serializedObject.FindProperty("_noiseFrequency");
             _noiseSpeed = serializedObject.FindProperty("_noiseSpeed");
-
             _pulseProbability = serializedObject.FindProperty("_pulseProbability");
             _pulseSpeed = serializedObject.FindProperty("_pulseSpeed");
 
