@@ -178,8 +178,6 @@ namespace Cloner
         float _time;
         bool _timeControlled;
 
-        int[] _tempInt2 = new int [2]; // reused for avoid GC mem allocation
-
         Bounds TransformedBounds {
             get {
                 return new Bounds(
@@ -282,34 +280,15 @@ namespace Cloner
             var noiseOffset = Vector2.one * _randomSeed + _noiseMotion * _time;
             var pulseTime = _pulseFrequency * (_time + _randomSeed);
 
-            // Scroll parameters.
-            var scroll = _scroll * _time;
-            var xInterval = _extent.x * 2 / _columnCount;
-            var yInterval = _extent.y * 2 / _rowCount;
-            var xStep = Mathf.FloorToInt(scroll.x / xInterval);
-            var yStep = Mathf.FloorToInt(scroll.y / yInterval);
-
-            noiseOffset += new Vector2(
-                _noiseFrequency * (xStep * xInterval),
-                _noiseFrequency * (yStep * yInterval)
-            );
-
             // Invoke the update compute kernel.
             var kernel = _compute.FindKernel("ClonerUpdate");
+
             _compute.SetInt("InstanceCount", InstanceCount);
             _compute.SetInt("BufferStride", TotalThreadCount);
 
-            _compute.SetInt("ColumnCount", _columnCount);
-            _compute.SetInt("RowCount", _rowCount);
+            _compute.SetInts("Iteration", new int [] {_columnCount, _rowCount});
             _compute.SetVector("Extent", _extent);
-
-            _compute.SetVector("PositionOffset", new Vector4(
-                scroll.x - xStep * xInterval,
-                scroll.y - yStep * yInterval
-            ));
-
-            _tempInt2[0] = xStep; _tempInt2[1] = yStep;
-            _compute.SetInts("ScrollStep", _tempInt2);
+            _compute.SetVector("Scroll", _scroll * _time);
 
             _compute.SetFloat("BaseScale", _templateScale);
             _compute.SetFloat("ScaleNoise", _scaleByNoise);
@@ -317,7 +296,7 @@ namespace Cloner
 
             _compute.SetFloat("NoiseFrequency", _noiseFrequency);
             _compute.SetVector("NoiseOffset", noiseOffset);
-            _compute.SetFloat("PositionModifier", _positionModifier * Mathf.Min(xInterval, yInterval));
+            _compute.SetFloat("PositionModifier", _positionModifier);
             _compute.SetFloat("NormalModifier", _normalModifier);
 
             _compute.SetFloat("PulseProbability", _pulseProbability);
