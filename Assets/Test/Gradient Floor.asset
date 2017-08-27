@@ -1,0 +1,16 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54276434dda9c694e85abaf98cdd981d, type: 3}
+  m_Name: Gradient Floor
+  m_EditorClassIdentifier: 
+  _redCoeffs: {x: 0.743, y: 0.191, z: 0.73, w: 0.493}
+  _greenCoeffs: {x: 0.706, y: 0.235, z: 0.77, w: 0.588}
+  _blueCoeffs: {x: 0.633, y: 0.361, z: 0.65, w: 0.69}

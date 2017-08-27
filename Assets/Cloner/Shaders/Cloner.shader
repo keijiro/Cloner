@@ -20,6 +20,7 @@ Shader "Cloner/Surface"
 
         #pragma surface surf Standard vertex:vert addshadow nolightmap
         #pragma instancing_options procedural:setup
+        #pragma target 4.5
 
         struct Input
         {
@@ -46,7 +47,7 @@ Shader "Cloner/Surface"
         #ifdef UNITY_PROCEDURAL_INSTANCING_ENABLED
 
         StructuredBuffer<float4> _TransformBuffer;
-        uint _InstanceCount;
+        uint _BufferStride;
 
         #endif
 
@@ -63,9 +64,9 @@ Shader "Cloner/Surface"
             uint id = unity_InstanceID;
 
             // Retrieve a transformation from TransformBuffer.
-            float4 ps = _TransformBuffer[id + _InstanceCount * 0];
-            float3 bx = _TransformBuffer[id + _InstanceCount * 1].xyz;
-            float3 by = _TransformBuffer[id + _InstanceCount * 2].xyz;
+            float4 ps = _TransformBuffer[id + _BufferStride * 0];
+            float3 bx = _TransformBuffer[id + _BufferStride * 1].xyz;
+            float3 by = _TransformBuffer[id + _BufferStride * 2].xyz;
             float3 bz = cross(bx, by);
 
             // Object to world matrix.
@@ -106,8 +107,8 @@ Shader "Cloner/Surface"
 
             uint id = unity_InstanceID;
 
-            float duv = _TransformBuffer[id + _InstanceCount * 1].w;
-            float sn2 = _TransformBuffer[id + _InstanceCount * 2].w;
+            float duv = _TransformBuffer[id + _BufferStride * 1].w;
+            float sn2 = _TransformBuffer[id + _BufferStride * 2].w;
 
             v.texcoord.x += frac(duv);
             v.texcoord.y += floor(duv) / 1000;

@@ -1,0 +1,74 @@
+// Cloner - An example of use of procedural instancing.
+// https://github.com/keijiro/Cloner
+
+#pragma kernel ClonerUpdate
+
+#include "Common.hlsl"
+#include "SimplexNoise3D.hlsl"
+
+StructuredBuffer<float4> PositionBuffer;
+StructuredBuffer<float4> NormalBuffer;
+StructuredBuffer<float4> TangentBuffer;
+RWStructuredBuffer<float4> TransformBuffer;
+
+CBUFFER_START(Params)
+
+    uint InstanceCount;
+    uint BufferStride;
+
+    float PositionNoise;
+    float NormalNoise;
+
+    float BaseScale;
+    float ScaleNoise;
+    float ScalePulse;
+
+    float NoiseFrequency;
+    float3 NoiseOffset;
+    float PulseProbability;
+    float PulseTime;
+
+CBUFFER_END
+
+[numthreads(128, 1, 1)]
+void ClonerUpdate(uint id : SV_DispatchThreadID)
+{
+    if (id >= InstanceCount) return;
+
+    float3 p = PositionBuffer[id].xyz;
+    float3 n = NormalBuffer[id].xyz;
+    float4 t = TangentBuffer[id];
+
+    // Noise field x2
+    float4 sn1 = snoise_grad(98.4898 + p * NoiseFrequency + NoiseOffset);
+    float4 sn2 = snoise_grad( 1.2278 - p * NoiseFrequency + NoiseOffset);
+
+    // Normal modification
+    float3 nz = normalize(n + sn1.xyz * NormalNoise);
+    float3 ny = normalize(cross(nz, t.xyz) * t.w);
+    float3 nx = cross(nz, ny);
+
+    // UV offsetting
+    uint hash = Hash(id);
+    float uoffs = float((hash >> 24) & 0xfff) / 0x1000;
+    float voffs = float( hash        & 0xfff) / 0x1000;
+    float uvoffs = uoffs + floor(voffs * 1000);
+
+    // Pulse noise
+    float ptime = PulseTime + float(hash & 0xfffff) / 0x100000;
+    uint seed = (uint)(id * 131071) + (uint)ptime;
+    float pulse0 = Random(seed + 0) < PulseProbability;
+    float pulse1 = Random(seed + 1) < PulseProbability;
+    float pulse = lerp(pulse0, pulse1, smoothstep(0, 1, frac(ptime)));
+
+    // Scale factor
+    float s_n = max(0, 1 + sn1.w * ScaleNoise) * BaseScale;
+    float s_p = pulse * ScalePulse * BaseScale;
+
+    // Position modification
+    p += (nx * sn2.x + ny * sn2.y + nz * sn2.z) * PositionNoise * s_n;
+
+    TransformBuffer[id + BufferStride * 0] = float4(p, s_n + s_p);
+    TransformBuffer[id + BufferStride * 1] = float4(nx, uvoffs);
+    TransformBuffer[id + BufferStride * 2] = float4(ny, sn2.w);
+}
