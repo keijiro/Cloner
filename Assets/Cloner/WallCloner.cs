@@ -10,7 +10,7 @@ namespace Cloner
     [ExecuteInEditMode]
     public sealed class WallCloner : MonoBehaviour, ITimeControl
     {
-        #region Wall properties
+        #region Basic instancing properties
 
         [SerializeField] int _columnCount = 100;
 
@@ -26,24 +26,6 @@ namespace Cloner
             set { _rowCount = value; ReallocateBuffer(); }
         }
 
-        [SerializeField] Vector2 _extent = Vector2.one * 10;
-
-        public Vector2 extent {
-            get { return _extent; }
-            set { _extent = value; }
-        }
-
-        [SerializeField] Vector2 _scroll = Vector2.up;
-
-        public Vector2 scroll {
-            get { return _scroll; }
-            set { _scroll = value; }
-        }
-
-        #endregion
-
-        #region Template properties
-
         [SerializeField] Mesh _template;
 
         public Mesh template {
@@ -56,6 +38,42 @@ namespace Cloner
         public float templateScale {
             get { return _templateScale; }
             set { _templateScale = value; }
+        }
+
+        #endregion
+
+        #region Wall properties
+
+        [SerializeField] Vector2 _extent = Vector2.one * 10;
+
+        public Vector2 extent {
+            get { return _extent; }
+            set { _extent = value; }
+        }
+
+        [SerializeField] Vector2 _scrollSpeed = Vector2.up;
+
+        public Vector2 scrollSpeed {
+            get { return _scrollSpeed; }
+            set { _scrollSpeed = value; }
+        }
+
+        #endregion
+
+        #region Modifier properties
+
+        [SerializeField] float _displacementByNoise = 0.125f;
+
+        public float displacementByNoise {
+            get { return _displacementByNoise; }
+            set { _displacementByNoise = value; }
+        }
+
+        [SerializeField] float _rotationByNoise = 0.125f;
+
+        public float rotationByNoise {
+            get { return _rotationByNoise; }
+            set { _rotationByNoise = value; }
         }
 
         [SerializeField] float _scaleByNoise = 0.05f;
@@ -83,25 +101,11 @@ namespace Cloner
             set { _noiseFrequency = value; }
         }
 
-        [SerializeField] Vector2 _noiseMotion = Vector2.up * 0.25f;
+        [SerializeField] Vector2 _noiseSpeed = Vector2.up * 0.25f;
 
-        public Vector2 noiseMotion {
-            get { return _noiseMotion; }
-            set { _noiseMotion = value; }
-        }
-
-        [SerializeField, Range(0, 1)] float _positionModifier = 0.125f;
-
-        public float positionModifier {
-            get { return _positionModifier; }
-            set { _positionModifier = value; }
-        }
-
-        [SerializeField, Range(0, 1)] float _normalModifier = 0.125f;
-
-        public float normalModifier {
-            get { return _normalModifier; }
-            set { _normalModifier = value; }
+        public Vector2 noiseSpeed {
+            get { return _noiseSpeed; }
+            set { _noiseSpeed = value; }
         }
 
         #endregion
@@ -115,16 +119,16 @@ namespace Cloner
             set { _pulseProbability = value; }
         }
 
-        [SerializeField] float _pulseFrequency = 2;
+        [SerializeField] float _pulseSpeed = 2;
 
-        public float pulseFrequency {
-            get { return _pulseFrequency; }
-            set { _pulseFrequency = value; }
+        public float pulseSpeed {
+            get { return _pulseSpeed; }
+            set { _pulseSpeed = value; }
         }
 
         #endregion
 
-        #region Material properties
+        #region Renderer properties
 
         [SerializeField] Material _material;
 
@@ -139,10 +143,6 @@ namespace Cloner
             get { return _gradient; }
             set { _gradient = value; }
         }
-
-        #endregion
-
-        #region Misc properties
 
         [SerializeField] Bounds _bounds =
             new Bounds(Vector3.zero, new Vector3(22, 22, 1));
@@ -177,6 +177,8 @@ namespace Cloner
 
         float _time;
         bool _timeControlled;
+
+        int [] _tempInt = { 0, 0 }; // used to avoid GC memory allocation
 
         Bounds TransformedBounds {
             get {
@@ -225,7 +227,7 @@ namespace Cloner
             _rowCount = Mathf.Max(1, _rowCount);
             _extent = Vector2.Max(Vector2.zero, _extent);
             _noiseFrequency = Mathf.Max(0, _noiseFrequency);
-            _pulseFrequency = Mathf.Max(0, _pulseFrequency);
+            _pulseSpeed = Mathf.Max(0, _pulseSpeed);
             _bounds.size = Vector3.Max(Vector3.zero, _bounds.size);
         }
 
@@ -277,18 +279,21 @@ namespace Cloner
                 _tempMaterial.CopyPropertiesFromMaterial(_material);
 
             // Calculate the time-based parameters.
-            var noiseOffset = Vector2.one * _randomSeed + _noiseMotion * _time;
-            var pulseTime = _pulseFrequency * (_time + _randomSeed);
+            var noiseOffset = Vector2.one * _randomSeed + _noiseSpeed * _time;
+            var pulseTime = _pulseSpeed * (_time + _randomSeed);
 
             // Invoke the update compute kernel.
             var kernel = _compute.FindKernel("ClonerUpdate");
 
-            _compute.SetInt("InstanceCount", InstanceCount);
             _compute.SetInt("BufferStride", TotalThreadCount);
 
-            _compute.SetInts("Iteration", new int [] {_columnCount, _rowCount});
+            _tempInt[0] = _columnCount; _tempInt[1] = _rowCount;
+            _compute.SetInts("Iteration", _tempInt);
             _compute.SetVector("Extent", _extent);
-            _compute.SetVector("Scroll", _scroll * _time);
+            _compute.SetVector("Scroll", _scrollSpeed * _time);
+
+            _compute.SetFloat("PositionNoise", _displacementByNoise);
+            _compute.SetFloat("NormalNoise", _rotationByNoise);
 
             _compute.SetFloat("BaseScale", _templateScale);
             _compute.SetFloat("ScaleNoise", _scaleByNoise);
@@ -296,14 +301,10 @@ namespace Cloner
 
             _compute.SetFloat("NoiseFrequency", _noiseFrequency);
             _compute.SetVector("NoiseOffset", noiseOffset);
-            _compute.SetFloat("PositionModifier", _positionModifier);
-            _compute.SetFloat("NormalModifier", _normalModifier);
-
             _compute.SetFloat("PulseProbability", _pulseProbability);
             _compute.SetFloat("PulseTime", pulseTime);
 
             _compute.SetBuffer(kernel, "TransformBuffer", _transformBuffer);
-
             _compute.Dispatch(kernel, ThreadGroupCount, 1, 1);
 
             // Draw the template mesh with instancing.

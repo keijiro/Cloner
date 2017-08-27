@@ -10,12 +10,14 @@ RWStructuredBuffer<float4> TransformBuffer;
 
 CBUFFER_START(Params)
 
-    uint InstanceCount;
     uint BufferStride;
 
     uint2 Iteration;
     float2 Extent;
     float2 Scroll;
+
+    float PositionNoise;
+    float NormalNoise;
 
     float BaseScale;
     float ScaleNoise;
@@ -23,9 +25,6 @@ CBUFFER_START(Params)
 
     float NoiseFrequency;
     float2 NoiseOffset;
-    float PositionModifier;
-    float NormalModifier;
-
     float PulseProbability;
     float PulseTime;
 
@@ -34,45 +33,42 @@ CBUFFER_END
 [numthreads(128, 1, 1)]
 void ClonerUpdate(uint id : SV_DispatchThreadID)
 {
-    if (id >= InstanceCount) return;
-
-    // Column, Row
-    int2 p_i = int2(id % Iteration.x, id / Iteration.x);
+    if (id >= Iteration.x * Iteration.y) return;
 
     // Normalized position
-    float2 p_01 = (float2)p_i / Iteration;
+    float2 p_01 = float2(id % Iteration.x, id / Iteration.x) / Iteration;
 
     // Wrap-around count
-    int2 wa_i = floor(p_01 + Scroll * 0.5 / Extent);
+    int2 wc = floor(p_01 + Scroll * 0.5 / Extent);
 
     // ID with wrapping around
-    int id_wa = id + wa_i.x * Iteration.x + wa_i.y * Iteration.y;
+    int id_w = id + wc.x * Iteration.x + wc.y * Iteration.y;
 
     // Original position with wrapping around
-    float2 p_wa = ((p_01 - wa_i) * 2 - 1) * Extent;
+    float2 p_w = ((p_01 - wc) * 2 - 1) * Extent;
 
     // Noise field x2
-    float3 sn1 = snoise_grad(98.4898 + p_wa * NoiseFrequency + NoiseOffset);
-    float3 sn2 = snoise_grad( 1.2278 - p_wa * NoiseFrequency + NoiseOffset);
+    float3 sn1 = snoise_grad(98.4898 + p_w * NoiseFrequency + NoiseOffset);
+    float3 sn2 = snoise_grad( 1.2278 - p_w * NoiseFrequency + NoiseOffset);
 
     // Position modification
-    float3 p = float3(p_wa + Scroll, 0);
-    p += sn1 * float3(0.2, 0.2, 1) * PositionModifier;
+    float3 p = float3(p_w + Scroll, 0);
+    p += sn1 * float3(0.2, 0.2, 1) * PositionNoise;
 
     // Normal modification
-    float3 nz = normalize(float3(sn2.xy * NormalModifier, 1));
+    float3 nz = normalize(float3(sn2.xy * NormalNoise, 1));
     float3 ny = normalize(cross(nz, float3(1, 0, 0)));
     float3 nx = cross(nz, ny);
 
     // UV offsetting
-    uint hash = Hash(id_wa);
-    float uoffs = float(hash & 0xfff000) / 0x1000000;
-    float voffs = float(hash & 0x000fff) / 0x0001000;
+    uint hash = Hash(id_w);
+    float uoffs = float((hash >> 24) & 0xfff) / 0x1000;
+    float voffs = float( hash        & 0xfff) / 0x1000;
     float uvoffs = uoffs + floor(voffs * 1000);
 
     // Pulse noise
-    float ptime = PulseTime + (float)id_wa / InstanceCount;
-    uint seed = id_wa * 131071 + (uint)ptime;
+    float ptime = PulseTime + float(hash & 0xfffff) / 0x100000;
+    uint seed = (uint)(id_w * 131071) + (uint)ptime;
     float pulse0 = Random(seed + 0) < PulseProbability;
     float pulse1 = Random(seed + 1) < PulseProbability;
     float pulse = lerp(pulse0, pulse1, smoothstep(0, 1, frac(ptime)));
