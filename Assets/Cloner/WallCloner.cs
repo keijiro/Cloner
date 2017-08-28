@@ -281,6 +281,8 @@ namespace Cloner
             // Calculate the time-based parameters.
             var noiseOffset = Vector2.one * _randomSeed + _noiseSpeed * _time;
             var pulseTime = _pulseSpeed * (_time + _randomSeed);
+            var halfOffs = new Vector2(_extent.x / _columnCount, _extent.y / _rowCount);
+            var scroll = _scrollSpeed * _time + halfOffs;
 
             // Invoke the update compute kernel.
             var kernel = _compute.FindKernel("ClonerUpdate");
@@ -290,7 +292,7 @@ namespace Cloner
             _tempInt[0] = _columnCount; _tempInt[1] = _rowCount;
             _compute.SetInts("Iteration", _tempInt);
             _compute.SetVector("Extent", _extent);
-            _compute.SetVector("Scroll", _scrollSpeed * _time);
+            _compute.SetVector("Scroll", scroll);
 
             _compute.SetFloat("PositionNoise", _displacementByNoise);
             _compute.SetFloat("NormalNoise", _rotationByNoise);
