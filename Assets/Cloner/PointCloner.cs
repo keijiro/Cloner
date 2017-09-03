@@ -266,7 +266,7 @@ namespace Cloner
 
             // Calculate the time-based parameters.
             var noiseOffset = Vector2.one * _randomSeed + _noiseSpeed * _time;
-            var pulseTime = _pulseSpeed * (_time + _randomSeed);
+            var pulseTime = _pulseSpeed * _time + _randomSeed * 443;
 
             // Invoke the update compute kernel.
             var kernel = _compute.FindKernel("ClonerUpdate");

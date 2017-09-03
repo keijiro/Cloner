@@ -280,7 +280,7 @@ namespace Cloner
 
             // Calculate the time-based parameters.
             var noiseOffset = Vector2.one * _randomSeed + _noiseSpeed * _time;
-            var pulseTime = _pulseSpeed * (_time + _randomSeed);
+            var pulseTime = _pulseSpeed * _time + _randomSeed * 443;
             var halfOffs = new Vector2(_extent.x / _columnCount, _extent.y / _rowCount);
             var scroll = _scrollSpeed * _time + halfOffs;
 
